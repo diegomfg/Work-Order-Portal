@@ -80,3 +80,6 @@ desktop.ini
 *.tmp
 *.temp
 .cache/
+
+# Claude Code temp files
+tmpclaude-*
