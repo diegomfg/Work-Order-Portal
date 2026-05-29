@@ -28,7 +28,7 @@ GitHub demo only. Distribution/SaaS packaging is a future problem. For now: clon
 
 ## Data Source: Ideal DMS Exports
 
-Ideal can export **Work Order History List** reports in two formats: **PDF** and **CSV**. Both will be supported via separate parsers that normalize to the same internal data shape.
+Ideal can export **Work Order History List** reports as **PDF**. This is the only format used — CSV export is only available for Pending reports, which All Dade does not use. All parsing goes through the PDF parser (Python microservice).
 
 ### Critical behaviors of Ideal exports
 
@@ -130,9 +130,8 @@ MISC      → Misc / Unknown
 | Frontend | **Next.js (React)** | Dynamic filters, search, per-dealer routing — SSR where useful |
 | Backend API | **Node.js + Express (or Fastify)** | Same language as frontend, fast to build, good file upload handling |
 | PDF Parser | **Python microservice** (FastAPI + pdfplumber) | pdfplumber handles complex PDF layouts far better than JS alternatives |
-| CSV Parser | **Node.js module** (papaparse or native streams) | CSV is trivial in JS; no need for Python here |
 | Database | **SQLite** (dev) → **PostgreSQL** (prod) | SQLite is zero-config for demo; Postgres for when this goes live |
-| File uploads | **Multer** (Node middleware) | Standard multipart handler, works with both PDF and CSV |
+| File uploads | **Multer** (Node middleware) | Standard multipart handler for PDF uploads |
 
 ### System diagram
 
@@ -162,9 +161,9 @@ MISC      → Misc / Unknown
 └─────────────┘           └─────────────────┘
 ```
 
-### The two parsers — key design rule
+### Parser design rule
 
-Both parsers must return **the same normalized WO object shape** regardless of input format. The rest of the app never knows or cares whether data came from a PDF or a CSV.
+The PDF parser must return the normalized WO object shape defined below. All downstream logic (upsert, API responses) depends only on this shape.
 
 ```typescript
 // Shared WO type — both parsers must produce this
@@ -224,16 +223,15 @@ def parse_ideal_pdf(pdf_bytes: bytes) -> list[dict]:
     return workorders
 ```
 
-### CSV parser (Node.js module)
+### API parser client (Node.js)
 
 ```
 api/parsers/
-├── csvParser.js      papaparse-based — returns WorkOrder[]
 ├── pdfClient.js      HTTP client that POSTs PDF to Python service, returns WorkOrder[]
 └── normalizer.js     Shared field normalization (mfr codes, status logic, date formatting)
 ```
 
-The Node API calls `pdfClient.js` for PDFs and `csvParser.js` for CSVs — both return the same shape, then the same upsert logic handles either.
+The Node API calls `pdfClient.js` for PDF uploads, then passes the returned WorkOrder array to the upsert logic.
 
 ### Upsert logic
 
@@ -286,7 +284,6 @@ ideal-service-portal/
 │   │   ├── import.js                  ← POST /api/import (file upload)
 │   │   └── workorders.js              ← GET /api/workorders, /api/status/:id
 │   ├── parsers/
-│   │   ├── csvParser.js
 │   │   ├── pdfClient.js               ← Calls Python microservice
 │   │   └── normalizer.js              ← Shared normalization logic
 │   ├── services/
@@ -302,8 +299,7 @@ ideal-service-portal/
 │   └── requirements.txt
 │
 ├── samples/                           ← Anonymized Ideal export files
-│   ├── sample-week.pdf                ← Real export, customer names changed
-│   └── sample-week.csv
+│   └── sample-week.pdf                ← Real export, customer names changed
 │
 ├── prototype/                         ← Original standalone HTML demos
 │   ├── work-order-portal-week.html    ← 72 WOs, fully working, reference UI
@@ -432,7 +428,7 @@ docker compose up --build
 
 ## GitHub / Portfolio Notes
 
-- Include `/samples` folder with **anonymized** real Ideal exports (PDF + CSV) so anyone cloning the repo can run the parser immediately without needing an Ideal account
+- Include `/samples` folder with an **anonymized** real Ideal PDF export so anyone cloning the repo can run the parser immediately without needing an Ideal account
 - `docker-compose.yml` should spin up the full stack (API + Python parser + frontend) in one command — this is important for the README demo
 - README should lead with the problem statement: *"OPE dealers using Ideal DMS spend significant time fielding status-check calls — this eliminates that"*
 - A short screen recording (filter by customer → click WO → see status) in the README will do more than any amount of documentation

@@ -9,16 +9,13 @@
 **Updated:** 2026-05-29
 
 **Description:**
-The WorkOrder interface is defined in the project knowledge file, but we need to cross-verify that:
-1. The field definitions match actual Ideal PDF exports (used in HTML demo)
-2. The CSV export format is consistent with the PDF format
-3. Both formats contain the same fields and can normalize to the same shape
+The WorkOrder interface is defined in the project knowledge file, but we need to cross-verify that the field definitions match actual Ideal PDF exports.
+
+**Note:** CSV export is not available for Work Order History reports — only for Pending reports, which All Dade does not use. CSV parser has been scrapped.
 
 **Tasks:**
 - [x] Analyze HTML demo data structure (73 work orders)
-- [ ] Analyze sample CSV export structure
-- [ ] Compare field names, formats, and data types between PDF and CSV
-- [ ] Document any discrepancies or edge cases
+- [ ] Document any discrepancies or edge cases between PDF fields and WorkOrder interface
 - [ ] Update WorkOrder interface if needed
 
 **Findings from HTML Demo Analysis:**
@@ -64,9 +61,8 @@ Stihl, Scag, Wright, Echo, RedMax, Exmark, Husqvarna, Honda, Generac, Shindaiwa,
 - `inprogress`: 0 orders (all exports are completed WOs)
 
 **Next Steps:**
-- Obtain CSV export sample from Ideal
-- Compare CSV field names/structure to PDF-derived data
-- Confirm all 4 missing fields are present in source exports
+- Confirm all 4 missing fields (`customerId`, `startDate`, `outDate`, `meter`) are present in the actual PDF source
+- Update WorkOrder interface if any discrepancies are found
 
 ---
 
