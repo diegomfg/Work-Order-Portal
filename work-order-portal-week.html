@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Portal — All Dade Lawnmowers</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF8800;
+    --dark: #1a1a1a;
+    --mid: #2e2e2e;
+    --surface: #242424;
+    --card: #2a2a2a;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: #888;
+    --subtle: #555;
+    --green: #4CAF7D;
+    --blue: #4A9FD4;
+    --amber: #E6A817;
+    --red: #E05252;
+    --purple: #9B7FD4;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  /* HEADER */
+  header { background: var(--mid); border-bottom: 1px solid var(--border); padding: 0 1.25rem; position: sticky; top: 0; z-index: 100; }
+  .header-inner { max-width: 780px; margin: 0 auto; display: flex; align-items: center; gap: 14px; height: 58px; }
+  .logo-mark { width: 32px; height: 32px; background: var(--orange); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-mark svg { width: 18px; height: 18px; }
+  .logo-text { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.04em; color: var(--text); line-height: 1; }
+  .logo-text span { color: var(--orange); }
+  .header-right { margin-left: auto; font-size: 12px; color: var(--muted); text-align: right; line-height: 1.4; }
+
+  /* PAGE */
+  .page { max-width: 780px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+
+  /* HERO */
+  .hero { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 16px; animation: fadeUp 0.35s ease both; }
+  .hero-icon { width: 44px; height: 44px; background: rgba(255,136,0,0.12); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hero-icon svg { width: 22px; height: 22px; stroke: var(--orange); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .hero-text { flex: 1; }
+  .hero-text h2 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .hero-text p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .hero-count { font-family: 'Bebas Neue', sans-serif; font-size: 36px; color: var(--orange); line-height: 1; flex-shrink: 0; text-align: center; }
+  .hero-count span { display: block; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+
+  /* STAT PILLS */
+  .stat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; animation: fadeUp 0.35s 0.05s ease both; }
+  .stat-pill { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 6px 14px; font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .stat-pill strong { color: var(--text); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--green); }
+  .dot-amber { background: var(--amber); }
+  .dot-purple { background: var(--purple); }
+  .dot-red { background: var(--red); }
+  .dot-blue { background: var(--blue); }
+
+  /* FILTERS */
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; animation: fadeUp 0.35s 0.08s ease both; }
+  .filter-row select { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px; cursor: pointer; outline: none; -webkit-appearance: none; appearance: none; flex: 1; min-width: 140px; }
+  .filter-row select:focus { border-color: var(--orange); }
+  .search-wrap { flex: 2; min-width: 200px; position: relative; }
+  .search-wrap input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 8px 12px 8px 34px; outline: none; }
+  .search-wrap input:focus { border-color: var(--orange); }
+  .search-wrap input::placeholder { color: var(--subtle); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--subtle); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+  /* SECTION LABEL */
+  .section-label { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); animation: fadeUp 0.35s 0.1s ease both; }
+
+  /* DATE GROUP */
+  .date-group { margin-bottom: 1.25rem; }
+  .date-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .date-pill { background: rgba(255,136,0,0.15); color: var(--orange); font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 0.08em; padding: 4px 12px; border-radius: 99px; white-space: nowrap; }
+  .date-line { flex: 1; height: 1px; background: var(--border); }
+  .date-count { font-size: 11px; color: var(--subtle); white-space: nowrap; }
+
+  /* WO CARD */
+  .wo-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; transition: border-color 0.2s; cursor: pointer; }
+  .wo-card:hover { border-color: rgba(255,136,0,0.3); }
+  .wo-card.open { border-color: rgba(255,136,0,0.5); }
+
+  .wo-summary { display: flex; align-items: center; gap: 12px; padding: 13px 16px; }
+  .wo-status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .s-completed { background: var(--green); box-shadow: 0 0 6px rgba(76,175,125,0.4); }
+  .s-warranty { background: var(--purple); box-shadow: 0 0 6px rgba(155,127,212,0.4); }
+  .s-nwf { background: var(--amber); box-shadow: 0 0 6px rgba(230,168,23,0.4); }
+  .s-review { background: var(--red); box-shadow: 0 0 6px rgba(224,82,82,0.4); }
+  .s-inprogress { background: var(--blue); box-shadow: 0 0 6px rgba(74,159,212,0.4); }
+
+  .wo-main { flex: 1; min-width: 0; }
+  .wo-top-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; flex-wrap: wrap; }
+  .wo-number { font-size: 11px; font-weight: 600; color: var(--orange); letter-spacing: 0.04em; flex-shrink: 0; }
+  .wo-customer { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 260px; }
+  .wo-bottom-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .wo-equip { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+
+  .type-tag { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; letter-spacing: 0.03em; flex-shrink: 0; }
+  .tag-lawn { background: rgba(76,175,125,0.15); color: #4CAF7D; }
+  .tag-2cycle { background: rgba(230,168,23,0.15); color: #E6A817; }
+  .tag-other { background: rgba(74,159,212,0.15); color: #4A9FD4; }
+
+  .wo-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .wo-date-badge { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; text-align: center; min-width: 44px; }
+  .date-month { font-size: 9px; font-weight: 600; color: var(--orange); letter-spacing: 0.1em; text-transform: uppercase; line-height: 1; }
+  .date-day { font-size: 18px; font-weight: 600; color: var(--text); line-height: 1.2; font-family: 'Bebas Neue', sans-serif; }
+
+  .status-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.04em; padding: 2px 7px; border-radius: 4px; }
+  .sb-completed { color: var(--green); background: rgba(76,175,125,0.12); }
+  .sb-warranty { color: var(--purple); background: rgba(155,127,212,0.12); }
+  .sb-nwf { color: var(--amber); background: rgba(230,168,23,0.12); }
+  .sb-review { color: var(--red); background: rgba(224,82,82,0.12); }
+  .sb-inprogress { color: var(--blue); background: rgba(74,159,212,0.12); }
+
+  .wo-chevron { font-size: 11px; color: var(--subtle); transition: transform 0.25s; flex-shrink: 0; align-self: center; margin-left: 4px; }
+  .wo-card.open .wo-chevron { transform: rotate(180deg); color: var(--orange); }
+
+  /* EXPANDED DETAIL */
+  .wo-detail { display: none; border-top: 1px solid var(--border); padding: 14px 16px; }
+  .wo-card.open .wo-detail { display: block; }
+
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .detail-label { font-size: 10px; font-weight: 600; color: var(--subtle); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+  .detail-value { font-size: 13px; color: var(--text); }
+
+  .tech-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 3px 10px 3px 4px; font-size: 12px; color: var(--muted); }
+  .tech-avatar { width: 20px; height: 20px; background: rgba(255,136,0,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: var(--orange); }
+
+  .comments-block { background: var(--surface); border-left: 3px solid var(--orange); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 10px 14px; font-size: 13px; color: var(--muted); line-height: 1.7; margin-top: 12px; }
+  .comments-block strong { display: block; font-size: 10px; font-weight: 600; color: var(--orange); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+
+  .warranty-note { background: rgba(155,127,212,0.1); border: 1px solid rgba(155,127,212,0.25); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; color: #b8a0e8; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+  .nwf-note { background: rgba(230,168,23,0.1); border: 1px solid rgba(230,168,23,0.2); border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; color: #c9922a; margin-top: 10px; display: flex; align-items: center; gap: 8px; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+  .empty p { font-size: 14px; margin-top: 1rem; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* MOBILE */
+  @media (max-width: 520px) {
+    .wo-customer { max-width: 160px; }
+    .wo-equip { max-width: 150px; }
+    .detail-grid { grid-template-columns: 1fr 1fr; }
+    .hero { flex-wrap: wrap; }
+    .stat-row { gap: 6px; }
+  }
+  @media (max-width: 380px) {
+    .detail-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 3C7 3 3 8 3 12c4.5-.8 7.5-3.5 9-7.5C13.5 8.5 16.5 11.2 21 12c0-4-4-9-9-9z"/>
+        <ellipse cx="12" cy="17" rx="5" ry="3" opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="logo-text">ALL DADE <span>LAWNMOWERS</span></div>
+    <div class="header-right">Service Portal<br><span style="color:var(--orange)">●</span> Live</div>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+    </div>
+    <div class="hero-text">
+      <h2>Your equipment, tracked.</h2>
+      <p>Real-time status on every unit we have in service. No need to call — check here anytime.</p>
+    </div>
+    <div class="hero-count" id="heroCount">—<span>orders</span></div>
+  </div>
+
+  <div class="stat-row" id="statRow"></div>
+
+  <div class="filter-row">
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search customer, WO #, equipment…" oninput="render()">
+    </div>
+    <select id="filterCustomer" onchange="render()"><option value="">All customers</option></select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">All statuses</option>
+      <option value="completed">Completed</option>
+      <option value="warranty">Under warranty</option>
+      <option value="nwf">Nothing wrong found</option>
+      <option value="review">Needs review</option>
+    </select>
+    <select id="filterType" onchange="render()">
+      <option value="">All equipment</option>
+      <option value="lawn">Lawn equipment</option>
+      <option value="2cycle">2-Cycle / Small</option>
+      <option value="other">Other</option>
+    </select>
+    <select id="filterDate" onchange="render()"><option value="">All dates</option></select>
+  </div>
+
+  <div class="section-label" id="sectionLabel">WORK ORDERS</div>
+  <div id="woContainer"></div>
+
+</div>
+
+<footer style="text-align:center;padding:2rem 1rem;font-size:11px;color:#444;">
+  All Dade Lawnmowers &nbsp;·&nbsp; Service Portal &nbsp;·&nbsp; For service inquiries call us directly
+</footer>
+
+<script>
+const WOs = [
+  { id:'1398925', customer:'Orellana, Yuri', tag:'039117', tech:'RM', inDate:'3/16/2026', complDate:'3/30/2026', mfr:'Stihl', model:'HL94 145', desc:'Hedge Trimmer', serial:'527767585', type:'2cycle', status:'nwf', comments:'Nothing wrong found. Unit inspected and returned to customer.' },
+  { id:'1398967', customer:'Romero, Gabriel', tag:'039120', tech:'RM', inDate:'3/16/2026', complDate:'3/25/2026', mfr:'Stihl', model:'FS94R', desc:'Trimmer', serial:'530296941', type:'2cycle', status:'completed', comments:'Tech replaced set of pickup bodies, filter, and tank vent. Unit tested and ran fine.' },
+  { id:'1399590', customer:'Project Xerofitus LLC', tag:'0039304', tech:'FO', inDate:'3/25/2026', complDate:'4/1/2026', mfr:'Stihl', model:'SG20', desc:'Sprayer', serial:'PROJECT XEROFITUS', type:'other', status:'completed', comments:'Labor to replace pump seals at no labor charge.' },
+  { id:'1399593', customer:'Coachman, Bradford', tag:'0039287', tech:'IL', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Scag', model:'SVRII36A-19FX', desc:'36" 19HP Kaw V-Ride', serial:'T9202239', type:'lawn', status:'completed', comments:'Tech checked unit and installed blades. Unit tested and ran fine.' },
+  { id:'1399600', customer:'Mesa, Carlos', tag:'0039294', tech:'IL', inDate:'3/25/2026', complDate:'3/26/2026', mfr:'Generac', model:'GP2500', desc:'Generator', serial:'MESA', type:'other', status:'completed', comments:'Tech replaced rope and changed oil. Unit tested and ran fine.' },
+  { id:'1399605', customer:'Bella Fiore Landscaping LLC', tag:'3074', tech:'JA', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Scag', model:'SVRII48V-22FX', desc:'48" 22HP Kaw V-Ride II', serial:'R5700057', type:'lawn', status:'completed', comments:'Tech replaced blades. Unit tested and ran fine.' },
+  { id:'1399606', customer:'Greenworx Landscaping Services', tag:'0039305', tech:'RM', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Echo', model:'PB9010T', desc:'79CC Backpack Blower', serial:'P56912014655', type:'2cycle', status:'nwf', comments:'Nothing wrong found. Tech tested unit and ran fine.' },
+  { id:'1399608', customer:'Coachman, Bradford', tag:'0039287A', tech:'IL', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Scag', model:'SVRII36A-19FX', desc:'36" 19HP Kaw V-Ride', serial:'T9202239', type:'lawn', status:'completed', comments:'Tech changed engine oil and filter.' },
+  { id:'1399613', customer:'Jose Gallardo Landscaping LLC', tag:'0039288', tech:'RM', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Stihl', model:'MS194T PS3 14', desc:'Chainsaw 14" Guide Bar', serial:'548144777', type:'2cycle', status:'nwf', comments:'Nothing wrong found. Tech tested unit and ran fine.' },
+  { id:'1399632', customer:'All In One Landscaping', tag:'0039307', tech:'JAL', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Stihl', model:'MS194T PS3 16', desc:'Chainsaw 16" Guide Bar', serial:'545717857', type:'2cycle', status:'completed', comments:'Tech replaced valve, tires, carb cover, air filter, and baffle. Unit tested and ran fine.' },
+  { id:'1399642', customer:'Roa, Diana', tag:'595', tech:'IL', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Scag', model:'SVRII48V-22FX', desc:'48" Velocity Deck 22HP Kaw', serial:'S4101380', type:'lawn', status:'completed', comments:'Tech installed belts provided by customer and new bearings.' },
+  { id:'1399646', customer:'Murdock, Bret', tag:'0039308', tech:'OD', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Scag', model:'STC40-17KA', desc:'Zero Turn', serial:'5810305', type:'lawn', status:'completed', comments:'Tech repaired electrical system and changed battery. Unit tested and ran fine.' },
+  { id:'1399653', customer:'Bella Fiore Landscaping LLC', tag:'0039310', tech:'JA', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Scag', model:'SVRXL61V-38FXEFI', desc:'61" Velocity Deck 38HP Kaw EFI', serial:'W9700970', type:'lawn', status:'completed', comments:'Tech installed blades and bent back metal plate.' },
+  { id:'1399660', customer:'Garcia, Ivan', tag:'0039291', tech:'RM', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Stihl', model:'FS91 Auto', desc:'Trimmer Bike Handle', serial:'535064695', type:'2cycle', status:'review', comments:'No technician notes recorded for this order.' },
+  { id:'1399664', customer:'GOSF Gardens of South Florida', tag:'3078', tech:'RM', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Echo', model:'PB770T', desc:'64CC Backpack Blower', serial:'P59312006578', type:'2cycle', status:'completed', comments:'Tech replaced starter handle and rope. Unit tested and ran fine.' },
+  { id:'1399666', customer:'Leflore, Jeffery', tag:'595', tech:'NT', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Exmark', model:'LZE742GKC604A3', desc:'Lazer Z E-Series 25HP 60"', serial:'407027253', type:'lawn', status:'completed', comments:'Tech replaced pump belt.' },
+  { id:'1399667', customer:'GOSF Gardens of South Florida', tag:'3079', tech:'JAL', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Echo', model:'PB9010T', desc:'79CC Backpack Blower', serial:'P56912014694', type:'2cycle', status:'warranty', comments:'Unit repaired under manufacturer warranty.' },
+  { id:'1399673', customer:'Castro, Lorenzo', tag:'0039293', tech:'NT', inDate:'3/25/2026', complDate:'3/25/2026', mfr:'Stihl', model:'SG20', desc:'Sprayer', serial:'01172026', type:'other', status:'review', comments:'No technician notes recorded for this order.' },
+  { id:'1399679', customer:'Leahy, David', tag:'0039285', tech:'RR', inDate:'3/25/2026', complDate:'3/27/2026', mfr:'Husqvarna', model:'YTH18542', desc:'18.5HP 42" Briggs Stratton Rider', serial:'S061719A077613', type:'lawn', status:'completed', comments:'Tech replaced oil, oil filter, spark plug, air filter, and fuel filter. Unit tested and ran fine.' },
+  { id:'1399683', customer:'Olivar, Arcenio', tag:'3074', tech:'JA', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'Scag', model:'SZL36H-18FR', desc:'36" 18HP Kawasaki FR Rider', serial:'R6801329', type:'lawn', status:'completed', comments:'Tech replaced battery. Unit tested and ran fine.' },
+  { id:'1399686', customer:'Olivar, Arcenio', tag:'0039311', tech:'JAL', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'Stihl', model:'BR450', desc:'Backpack Blower', serial:'545665051', type:'2cycle', status:'warranty', comments:'Unit repaired under manufacturer warranty.' },
+  { id:'1399687', customer:'Olivar, Arcenio', tag:'039312', tech:'RM', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'Stihl', model:'HL94K', desc:'Hedge Trimmer', serial:'536677180', type:'2cycle', status:'completed', comments:'Tech replaced straight hedge attachment. Unit tested and ran fine.' },
+  { id:'1399688', customer:'Project Xerofitus LLC', tag:'0039313', tech:'RM', inDate:'3/26/2026', complDate:'4/1/2026', mfr:'Echo', model:'SHC2620', desc:'25.4CC 51" Shaft Hedge', serial:'15011556', type:'2cycle', status:'nwf', comments:'Piston/cylinder scored and needs muffler. Unit deemed not worth fixing (NWF).' },
+  { id:'1399689', customer:'Blanco, Jose', tag:'0039296', tech:'RM', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'RedMax', model:'EBZ8560RH', desc:'75.6CC Strato Backpack Blower', serial:'20244500401', type:'2cycle', status:'warranty', comments:'Unit repaired under manufacturer warranty.' },
+  { id:'1399696', customer:'Livescapes', tag:'0039314', tech:'OD', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'Wright', model:'WSZK52SFX8203B', desc:'34.5HP 52" Kaw EVO FX820 EFI', serial:'185073WJ', type:'lawn', status:'completed', comments:'Tech replaced oil and oil filter. Unit tested and ran fine.' },
+  { id:'1399698', customer:'Livescapes', tag:'0039315', tech:'RR', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'Wright', model:'WSZK61S61G83B', desc:'ZK 61" Briggs 40HP EFI Vanguard Gen 3', serial:'172860HT', type:'lawn', status:'completed', comments:'Tech replaced oil and oil filter. Unit tested and ran fine.' },
+  { id:'1399709', customer:'C and W Lawn Care Inc.', tag:'595', tech:'OD', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'Scag', model:'STTII61V-31BV', desc:'Turf Tiger II 61" Velocity Plus', serial:'R2500539', type:'lawn', status:'completed', comments:'Service performed. Unit tested and ran fine.' },
+  { id:'1399722', customer:'Martinez, Yosvani', tag:'039318', tech:'OD', inDate:'3/26/2026', complDate:'3/27/2026', mfr:'Honda', model:'UT80993F', desc:'Pressure Washer', serial:'0A14243D80184', type:'other', status:'completed', comments:'Tech replaced carburetor. Unit tested and ran fine.' },
+  { id:'1399725', customer:'CDM Landscaping Corp', tag:'0039319', tech:'JAL', inDate:'3/26/2026', complDate:'3/31/2026', mfr:'Echo', model:'PE2620', desc:'26CC Curved Shaft Edger', serial:'T89715024826', type:'2cycle', status:'completed', comments:'Tech replaced muffler and spark plug. Unit tested and ran fine.' },
+  { id:'1399753', customer:'Red Max Warranty', tag:'0039096', tech:'RM', inDate:'3/26/2026', complDate:'3/26/2026', mfr:'RedMax', model:'EBZ8560RH', desc:'75.6CC Strato Backpack Blower', serial:'20244500411', type:'2cycle', status:'warranty', comments:'Unit had play on crankshaft. Approved for full unit replacement under warranty. New blower provided to Vargas Landscaping Design (786-320-3406).' },
+  { id:'1399759', customer:'Plant Brothers Landscaping Inc', tag:'0039320', tech:'RR', inDate:'3/27/2026', complDate:'3/28/2026', mfr:'Wright', model:'WSZK52SFX850E 49S', desc:'52" Kaw FX850 Electric HD AC', serial:'164837PT', type:'lawn', status:'completed', comments:'Tech replaced belt. Clutch replaced under warranty.' },
+  { id:'1399764', customer:'MS All Services Corp', tag:'0039343', tech:'JA', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'Scag', model:'STT61V-791DFI', desc:'61" Velocity Deck 26HP EFI Turf Tiger', serial:'H9600153', type:'lawn', status:'completed', comments:'Tech replaced both LH hydraulic hoses. Unit tested and ran fine.' },
+  { id:'1399783', customer:'CDM Landscaping Corp', tag:'0039397', tech:'FO', inDate:'3/27/2026', complDate:'3/31/2026', mfr:'Wright', model:'WSTN36SFX600E1B', desc:'36" Kaw FX600 Electric HD AC', serial:'129382GJ', type:'lawn', status:'review', comments:'No technician notes recorded for this order.' },
+  { id:'1399791', customer:'Lezcano, Lazaro', tag:'0039398', tech:'JAL', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'Stihl', model:'HL94K', desc:'Hedge Trimmer', serial:'534735133', type:'2cycle', status:'completed', comments:'Tech calibrated carburetor. Unit tested and ran fine.' },
+  { id:'1399805', customer:'Plant Brothers Landscaping Inc', tag:'0039400', tech:'RM', inDate:'3/27/2026', complDate:'3/28/2026', mfr:'Stihl', model:'FS94R', desc:'Trimmer', serial:'542362763', type:'2cycle', status:'completed', comments:'Tech replaced air filter, fuel filter, tank vent, spark plug, and carburetor. Unit tested and ran fine.' },
+  { id:'1399809', customer:'Rodriguez, Ismael', tag:'3074', tech:'JA', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'B&E', model:'BC3475PX', desc:'Pressure Washer', serial:'ISMAEL', type:'other', status:'completed', comments:'Tech replaced starter rope. Unit tested and ran fine.' },
+  { id:'1399811', customer:'Tru-Cutz', tag:'0039347', tech:'JA', inDate:'3/27/2026', complDate:'3/28/2026', mfr:'Wright', model:'WZXT61S61G8E1B', desc:'40HP 61" Vanguard Big Block EFI', serial:'138873VN', type:'lawn', status:'completed', comments:'Tech replaced spindle bushing, split tapered bolt. Unit tested and ran fine.' },
+  { id:'1399812', customer:'Covarrubias, Manuel', tag:'595', tech:'NT', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'—', model:'Starter', desc:'Starter Unit', serial:'—', type:'other', status:'completed', comments:'Tech replaced starter rope only.' },
+  { id:'1399816', customer:'The Gator Escape Inc', tag:'0039345', tech:'IL', inDate:'3/27/2026', complDate:'3/31/2026', mfr:'Wright', model:'WSZK61S61E8E 49S', desc:'37HP 61" Big Block Vanguard EFI', serial:'158118TJ', type:'lawn', status:'completed', comments:'Tech replaced switch. Module and starter replaced under warranty.' },
+  { id:'1399817', customer:'The Gator Escape Inc', tag:'0039346', tech:'JAL', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'Stihl', model:'FS131R Auto', desc:'Trimmer', serial:'546805083', type:'2cycle', status:'completed', comments:'Tech replaced shaft and clutch. Unit tested and ran fine.' },
+  { id:'1399829', customer:'Lezcano, Lazaro', tag:'0039399', tech:'JAL', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'Echo', model:'SRM2620T', desc:'26CC Steel Shaft Trimmer', serial:'U87112028676', type:'2cycle', status:'completed', comments:'Tech replaced rope and handle. Unit tested and ran fine.' },
+  { id:'1399834', customer:'Sordia, Nestor', tag:'3074', tech:'RM', inDate:'3/27/2026', complDate:'3/27/2026', mfr:'Stihl', model:'FS131R Auto', desc:'Trimmer', serial:'542559084', type:'2cycle', status:'completed', comments:'Tech replaced carburetor. Unit tested and ran fine.' },
+  { id:'1399842', customer:'Chaves, Jesus', tag:'0039352', tech:'JA', inDate:'3/27/2026', complDate:'3/30/2026', mfr:'Scag', model:'SZL36H-18FR', desc:'36" 18HP Kawasaki FR Rider', serial:'X0100651', type:'lawn', status:'completed', comments:'Tech replaced oil and oil filter. Blades sharpened. Unit tested and ran fine.' },
+  { id:'1399853', customer:'Miami Landscaping Group Inc', tag:'3079', tech:'JA', inDate:'3/28/2026', complDate:'3/28/2026', mfr:'Scag', model:'STCII48V-22FX', desc:'48" 22HP Kawasaki Cat II', serial:'S7401304', type:'lawn', status:'completed', comments:'Tech replaced deck belt and caps. Unit tested and ran fine.' },
+  { id:'1399855', customer:'Plant Brothers Landscaping Inc', tag:'0039358', tech:'JAL', inDate:'3/28/2026', complDate:'3/28/2026', mfr:'Stihl', model:'FS94R', desc:'Trimmer', serial:'541463027', type:'2cycle', status:'completed', comments:'Tech replaced head white cover. Unit tested and ran fine.' },
+  { id:'1399856', customer:'Plant Brothers Landscaping Inc', tag:'0039357', tech:'JAL', inDate:'3/28/2026', complDate:'3/30/2026', mfr:'Stihl', model:'FS94R', desc:'Trimmer (Back Order)', serial:'542379394', type:'2cycle', status:'warranty', comments:'Unit repaired under manufacturer warranty. Parts on back order.' },
+  { id:'1399866', customer:'Riles, Bobby', tag:'0039330', tech:'JAL', inDate:'3/28/2026', complDate:'3/28/2026', mfr:'Shindaiwa', model:'T235', desc:'Trimmer', serial:'U70715011132', type:'2cycle', status:'completed', comments:'Tech replaced fuel filter, vent, fuel tank, spark plug, and air filter. Unit tested and ran fine.' },
+  { id:'1399881', customer:'Arte, Jovanni', tag:'039334', tech:'JA', inDate:'3/28/2026', complDate:'3/31/2026', mfr:'Misc', model:'STP302', desc:'Trimmer', serial:'GWB0560113', type:'2cycle', status:'nwf', comments:'Nothing wrong found. Unit returned to customer.' },
+  { id:'1399883', customer:'Puente, Rafael', tag:'—', tech:'OD', inDate:'3/28/2026', complDate:'3/28/2026', mfr:'—', model:'—', desc:'Blade Sharpening Service', serial:'—', type:'other', status:'completed', comments:'Tech sharpened 4 blades.' },
+  { id:'1399910', customer:'Vargas Landscaping Design', tag:'0039325', tech:'JA', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Wright', model:'WSTN36SFX600E1B', desc:'36" Kaw FX600 Electric HD AC', serial:'139787GT', type:'lawn', status:'completed', comments:'Tech replaced battery and voltage regulator. Unit tested and ran fine.' },
+  { id:'1399912', customer:'Tru-Cutz', tag:'0039326', tech:'RR', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Wright', model:'WSZK61S61EBE-49S', desc:'61" Big Block Vanguard EFI', serial:'127402WC', type:'lawn', status:'completed', comments:'Tech removed coconut from rear tire, replaced hose, and installed 3 tire plugs.' },
+  { id:'1399920', customer:'Rodriguez, Erasto', tag:'595', tech:'RR', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Scag', model:'SFC21-7CV', desc:'21" 7.75HP Kohler Walk-Behind', serial:'W2400810', type:'lawn', status:'completed', comments:'Tech sharpened blade.' },
+  { id:'1399922', customer:'Rodriguez, Erasto', tag:'596', tech:'RR', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Scag', model:'SVRII48V-22FX', desc:'48" Velocity Deck 22HP Kaw', serial:'RODFRIGUEZ', type:'lawn', status:'completed', comments:'Tech sharpened blades and tightened front wheel. Unit tested and ran fine.' },
+  { id:'1399926', customer:'Rayo, Arik', tag:'0039327', tech:'OD', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Murray', model:'MNA152703', desc:'Lawnmower', serial:'202312008008', type:'lawn', status:'completed', comments:'Tech replaced carburetor.' },
+  { id:'1399933', customer:'Mayon, Valentin', tag:'0039328', tech:'JAL', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Stihl', model:'HL94K', desc:'Hedge Trimmer', serial:'524943782', type:'2cycle', status:'completed', comments:'Tech sharpened blades and greased unit. Unit tested and ran fine.' },
+  { id:'1399936', customer:'Mayon, Valentin', tag:'0039335', tech:'JAL', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Stihl', model:'HL94K', desc:'Hedge Trimmer', serial:'519432384', type:'2cycle', status:'completed', comments:'Tech sharpened blades and greased unit. Unit tested and ran fine.' },
+  { id:'1399961', customer:'San Antonio Lawn Service', tag:'595', tech:'NT', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Wright', model:'WSPN36SFS600E', desc:'Intensity Sports 36" Kaw FS600E', serial:'104173XU', type:'lawn', status:'completed', comments:'Tech replaced voltage regulator.' },
+  { id:'1399967', customer:'Pena Hernandez, Samuel', tag:'0039364', tech:'JA', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Wright', model:'WSTN36SFX600E1B', desc:'36" Kaw FX600 Electric HD AC', serial:'130240YR', type:'lawn', status:'completed', comments:'Tech replaced starter, battery, and blades. Unit tested and ran fine.' },
+  { id:'1399970', customer:'Consuegra, Mario', tag:'3075', tech:'OD', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Simpson', model:'PS60981', desc:'Pressure Washer', serial:'01194216980-P', type:'other', status:'completed', comments:'Tech replaced carburetor and changed oil. Unit tested and ran fine.' },
+  { id:'1399982', customer:'100 Acre Wood Landscaping', tag:'595', tech:'RR', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Wright', model:'WSTX52S49E8E2B', desc:'28HP 52" Vanguard 810CC EFI', serial:'137955UP', type:'lawn', status:'completed', comments:'Tech changed tires (provided by customer) and hub.' },
+  { id:'1399995', customer:'Rosalez, Conrrado', tag:'0039341', tech:'NT', inDate:'3/30/2026', complDate:'3/30/2026', mfr:'Echo', model:'PB7910T', desc:'80CC Backpack Blower', serial:'P56415010502', type:'2cycle', status:'completed', comments:'Tech replaced tank vent and fuel filter.' },
+  { id:'1400000', customer:'Ixpata Lajuj, Olga', tag:'0039366', tech:'JA', inDate:'3/30/2026', complDate:'3/31/2026', mfr:'Wright', model:'WSTN36SFX600E1B', desc:'36" Kaw FX600 Electric HD AC', serial:'173691RF', type:'lawn', status:'completed', comments:'Tech replaced oil, fuel filter, spark plug, air filter, oil filter, fuel gauge seal, hydro oil filter, and blades. Unit tested and ran fine.' },
+  { id:'1400019', customer:'Project Xerofitus LLC', tag:'0039371', tech:'RM', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'Echo', model:'CS2511T-14', desc:'25CC Chainsaw 14" X Series', serial:'XERO', type:'2cycle', status:'completed', comments:'Tech replaced spring, tank vent, air filter cover, and dust. Unit tested and ran fine.' },
+  { id:'1400020', customer:'Project Xerofitus LLC', tag:'0039372', tech:'RM', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'Echo', model:'CS2511T-14', desc:'25CC Chainsaw 14" X Series', serial:'C94112002653', type:'2cycle', status:'completed', comments:'Tech replaced springs, air filter, fuel filter, and spark plug. Unit tested and ran fine.' },
+  { id:'1400025', customer:'Leflore, Jeffery', tag:'0039378', tech:'JA', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'Wright', model:'WZXT72S61G8E1B', desc:'40HP 72" Vanguard Big Block EFI', serial:'149532GT', type:'lawn', status:'completed', comments:'Tech replaced bolt, washer, blade spacer, and blades. Unit tested and ran fine.' },
+  { id:'1400026', customer:'Leflore, Jeffery', tag:'0039377', tech:'JA', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'Exmark', model:'LZS801CKA60RA1', desc:'Exmark Ride Mower', serial:'406773840', type:'lawn', status:'completed', comments:'Tech replaced screw and bushing. Unit tested and ran fine.' },
+  { id:'1400027', customer:'Leflore, Jeffery', tag:'0035536', tech:'RM', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'Stihl', model:'BR800X', desc:'Magnum Backpack Blower', serial:'544067360', type:'2cycle', status:'completed', comments:'Tech replaced tube and clamps. Unit tested and ran fine.' },
+  { id:'1400029', customer:'Leflore, Jeffery', tag:'0036838', tech:'RM', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'Stihl', model:'BR700', desc:'Backpack Blower', serial:'545685748', type:'2cycle', status:'completed', comments:'Tech replaced bolt, lever, and clamp. Unit tested and ran fine.' },
+  { id:'1400031', customer:'Leflore, Jeffery', tag:'0039379', tech:'JAL', inDate:'3/31/2026', complDate:'3/31/2026', mfr:'RedMax', model:'EBZ8560', desc:'75.6CC Strato Backpack Blower', serial:'20220300209', type:'2cycle', status:'completed', comments:'Tech replaced recoil spring. Unit tested and ran fine.' },
+  { id:'1400110', customer:'Calel-Perez, Mauro', tag:'0039387', tech:'JA', inDate:'4/1/2026', complDate:'4/1/2026', mfr:'Wright', model:'WSTN36FS600E', desc:'Intensity 36" Kaw FS600', serial:'109033JC', type:'lawn', status:'completed', comments:'Tech installed new deck belt and pump belt. Unit tested and ran fine.' },
+  { id:'1400117', customer:'Beauliere, Gregory', tag:'0039388', tech:'NT', inDate:'4/1/2026', complDate:'4/1/2026', mfr:'Scag', model:'STCII48V-22FX', desc:'48" Velocity Deck 22HP Kaw', serial:'N8700703', type:'lawn', status:'completed', comments:'Tech adjusted idler arm.' },
+  { id:'1400121', customer:'NMC Spray Solution Corp', tag:'595', tech:'NT', inDate:'4/1/2026', complDate:'4/1/2026', mfr:'—', model:'Trailer', desc:'Trailer', serial:'—', type:'other', status:'completed', comments:'Unit installed and serviced.' },
+];
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function parseDate(str) {
+  const [m,d,y] = str.split('/').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function dateBadge(str) {
+  const d = parseDate(str);
+  return { month: MONTHS[d.getMonth()], day: d.getDate() };
+}
+
+function typeTag(t) {
+  if (t==='lawn') return '<span class="type-tag tag-lawn">LAWN</span>';
+  if (t==='2cycle') return '<span class="type-tag tag-2cycle">2-CYCLE</span>';
+  return '<span class="type-tag tag-other">OTHER</span>';
+}
+
+function statusDotClass(s) {
+  return { completed:'s-completed', warranty:'s-warranty', nwf:'s-nwf', review:'s-review', inprogress:'s-inprogress' }[s] || 's-completed';
+}
+
+function statusBadgeClass(s) {
+  return { completed:'sb-completed', warranty:'sb-warranty', nwf:'sb-nwf', review:'sb-review', inprogress:'sb-inprogress' }[s] || 'sb-completed';
+}
+
+function statusLabel(s) {
+  return { completed:'Completed', warranty:'Under Warranty', nwf:'NWF', review:'Needs Review', inprogress:'In Progress' }[s] || s;
+}
+
+function populateFilters() {
+  const customers = [...new Set(WOs.map(w => w.customer))].sort();
+  const sel = document.getElementById('filterCustomer');
+  customers.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+
+  const dates = [...new Set(WOs.map(w => w.inDate))].sort((a,b) => parseDate(b) - parseDate(a));
+  const dsel = document.getElementById('filterDate');
+  dates.forEach(d => {
+    const dt = parseDate(d);
+    const o = document.createElement('option');
+    o.value = d;
+    o.textContent = `${MONTHS[dt.getMonth()]} ${dt.getDate()}, ${dt.getFullYear()}`;
+    dsel.appendChild(o);
+  });
+}
+
+function filtered() {
+  const c = document.getElementById('filterCustomer').value;
+  const s = document.getElementById('filterStatus').value;
+  const t = document.getElementById('filterType').value;
+  const d = document.getElementById('filterDate').value;
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  return WOs.filter(w =>
+    (!c || w.customer === c) &&
+    (!s || w.status === s) &&
+    (!t || w.type === t) &&
+    (!d || w.inDate === d) &&
+    (!q || w.customer.toLowerCase().includes(q) || w.id.includes(q) || w.mfr.toLowerCase().includes(q) || w.model.toLowerCase().includes(q) || w.desc.toLowerCase().includes(q) || w.serial.toLowerCase().includes(q))
+  );
+}
+
+function renderStats(data) {
+  const counts = { completed:0, warranty:0, nwf:0, review:0 };
+  data.forEach(w => { if (counts[w.status] !== undefined) counts[w.status]++; });
+  document.getElementById('statRow').innerHTML = `
+    <div class="stat-pill"><div class="dot dot-green"></div><strong>${counts.completed}</strong> Completed</div>
+    <div class="stat-pill"><div class="dot dot-purple"></div><strong>${counts.warranty}</strong> Warranty</div>
+    <div class="stat-pill"><div class="dot dot-amber"></div><strong>${counts.nwf}</strong> NWF</div>
+    ${counts.review ? `<div class="stat-pill"><div class="dot dot-red"></div><strong>${counts.review}</strong> Needs Review</div>` : ''}
+  `;
+}
+
+function render() {
+  const data = filtered();
+  document.getElementById('heroCount').innerHTML = `${data.length}<span>orders</span>`;
+  document.getElementById('sectionLabel').textContent = `WORK ORDERS${data.length !== WOs.length ? ' — ' + data.length + ' of ' + WOs.length : ''}`;
+  renderStats(data);
+
+  const container = document.getElementById('woContainer');
+  container.innerHTML = '';
+
+  if (!data.length) {
+    container.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" width="40" height="40" stroke="#555" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><p>No work orders match your filters.</p></div>`;
+    return;
+  }
+
+  // Group by in-date (most recent first)
+  const groups = {};
+  data.forEach(w => { (groups[w.inDate] = groups[w.inDate] || []).push(w); });
+  const sortedDates = Object.keys(groups).sort((a,b) => parseDate(b) - parseDate(a));
+
+  sortedDates.forEach(date => {
+    const group = groups[date];
+    const dg = document.createElement('div');
+    dg.className = 'date-group';
+
+    const d = parseDate(date);
+    const label = `${MONTHS[d.getMonth()].toUpperCase()} ${d.getDate()}, ${d.getFullYear()}`;
+
+    dg.innerHTML = `<div class="date-heading">
+      <div class="date-pill">${label}</div>
+      <div class="date-line"></div>
+      <div class="date-count">${group.length} order${group.length!==1?'s':''}</div>
+    </div>`;
+
+    group.forEach(w => {
+      const badge = dateBadge(w.inDate);
+      const card = document.createElement('div');
+      card.className = 'wo-card';
+
+      const warrantyNote = w.status === 'warranty' ? `<div class="warranty-note">★ This unit was serviced under manufacturer warranty — no charge to customer.</div>` : '';
+      const nwfNote = w.status === 'nwf' ? `<div class="nwf-note">⚠ Nothing wrong was found during inspection (NWF). Unit returned as received.</div>` : '';
+
+      card.innerHTML = `
+        <div class="wo-summary">
+          <div class="wo-status-dot ${statusDotClass(w.status)}"></div>
+          <div class="wo-main">
+            <div class="wo-top-row">
+              <span class="wo-number">WO #${w.id}</span>
+              <span class="wo-customer">${w.customer}</span>
+            </div>
+            <div class="wo-bottom-row">
+              <span class="wo-equip">${w.mfr} · ${w.desc}</span>
+              ${typeTag(w.type)}
+            </div>
+          </div>
+          <div class="wo-right">
+            <div class="wo-date-badge">
+              <div class="date-month">${badge.month}</div>
+              <div class="date-day">${badge.day}</div>
+            </div>
+            <div class="status-badge ${statusBadgeClass(w.status)}">${statusLabel(w.status)}</div>
+          </div>
+          <div class="wo-chevron">▼</div>
+        </div>
+        <div class="wo-detail">
+          <div class="detail-grid">
+            <div><div class="detail-label">Equipment</div><div class="detail-value">${w.mfr} ${w.model}</div></div>
+            <div><div class="detail-label">Description</div><div class="detail-value">${w.desc}</div></div>
+            <div><div class="detail-label">Serial / VIN</div><div class="detail-value">${w.serial}</div></div>
+            <div><div class="detail-label">Tag #</div><div class="detail-value">${w.tag}</div></div>
+            <div><div class="detail-label">Date in</div><div class="detail-value">${w.inDate}</div></div>
+            <div><div class="detail-label">Completed</div><div class="detail-value">${w.complDate}</div></div>
+            <div><div class="detail-label">Technician</div><div class="detail-value"><div class="tech-chip"><div class="tech-avatar">${w.tech}</div>${w.tech}</div></div></div>
+          </div>
+          ${warrantyNote}${nwfNote}
+          <div class="comments-block"><strong>Technician Notes</strong>${w.comments}</div>
+        </div>
+      `;
+      card.addEventListener('click', () => card.classList.toggle('open'));
+      dg.appendChild(card);
+    });
+
+    container.appendChild(dg);
+  });
+}
+
+populateFilters();
+render();
+</script>
+</body>
+</html>
