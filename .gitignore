@@ -81,5 +81,6 @@ desktop.ini
 *.temp
 .cache/
 
-# Claude Code temp files
+# Claude Code
 tmpclaude-*
+.claude/

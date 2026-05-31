@@ -106,6 +106,91 @@ This confirms the same status code is used for **two very different outcomes**.
 
 ---
 
+### ISSUE-003: Build Admin Dashboard + Upload Flow
+**Status:** Open
+**Priority:** High
+**Created:** 2026-05-31
+**Updated:** 2026-05-31
+
+**Description:**
+Build the dealer-facing admin section: a dashboard with upload history and a multi-step PDF upload flow that parses, lets admins review/edit, and publishes work orders to the database.
+
+---
+
+#### Architecture decisions (confirmed)
+
+**Backend: Next.js API routes (not a separate Express server)**
+API routes live inside `frontend/app/api/`. Keeps the dev setup to two processes (Next.js + Python parser) instead of three. Can be extracted to standalone Express later if needed — no meaningful tradeoff at this stage.
+
+**Database: SQLite (dev) → PostgreSQL (prod)**
+SQLite via `better-sqlite3` — zero config for local dev and anyone cloning the repo. Schema and upsert logic already designed in project docs. Swap connection string for Postgres when deploying.
+
+**PDF Parser: Python microservice (FastAPI + pdfplumber) — build now**
+Must remain a separate process regardless of backend choice — JS PDF parsing can't reliably handle Ideal's layout. We have the sample PDF to test against, so build the real parser this session rather than simulating it.
+
+**"Last Updated" timestamp**
+Written to the database (or a simple meta table) when a publish completes. Dashboard reads it via API. Represents the most recent successful upload, not the current time. Intended to be updated daily once the manual upload workflow is established.
+
+---
+
+#### Admin dashboard (`/admin`)
+
+**Tasks:**
+- [ ] Stats strip: total WO count + breakdown by status (completed / warranty / nwf / review / inprogress)
+- [ ] "Last updated" timestamp — reads from DB meta table, shows date + time
+- [ ] "Upload New Report" button → `/admin/upload`
+- [ ] Recent uploads log (stretch goal — list of past upload sessions with WO counts)
+
+---
+
+#### Upload flow (`/admin/upload`) — 4 steps, single page
+
+**Step 1 — Drop zone**
+- [ ] Drag & drop target for PDF files
+- [ ] "Browse files" fallback button
+- [ ] PDF-only validation (reject other file types with inline error)
+
+**Step 2 — Parsing**
+- [ ] Loading state while PDF is POSTed to Python parser microservice
+- [ ] Error state if parser returns a failure
+
+**Step 3 — Review**
+- [ ] Table of all parsed work orders (WO #, customer, equipment, status, date in)
+- [ ] Per-row status override (dropdown — admin can correct misclassified statuses before publish)
+- [ ] Per-row exclude toggle (checkbox — admin can drop individual WOs from the publish batch)
+- [ ] Summary bar: "X work orders — Y new, Z updates" (requires DB lookup to determine new vs update)
+- [ ] Field editing scoped to status only for now; full field editing deferred
+
+**Step 4 — Publish / Done**
+- [ ] "Publish N work orders" confirmation button
+- [ ] POST reviewed + filtered WOs to upsert API route
+- [ ] Write `last_updated` timestamp to DB meta table on success
+- [ ] Success state → redirect to `/admin` dashboard
+
+---
+
+#### Next.js API routes to build
+
+| Route | Method | Purpose |
+|---|---|---|
+| `/api/parse` | POST | Accepts PDF upload, forwards to Python parser, returns `WorkOrder[]` |
+| `/api/workorders` | GET | Returns all WOs from DB (with optional status/type filters) |
+| `/api/workorders/publish` | POST | Upserts a reviewed batch of `WorkOrder[]` into DB |
+| `/api/meta` | GET | Returns `{ lastUpdated: string \| null }` |
+
+---
+
+#### Python parser microservice (`parser/`)
+
+| File | Purpose |
+|---|---|
+| `main.py` | FastAPI app — `POST /parse` accepts multipart PDF, returns `WorkOrder[]` |
+| `pdf_parser.py` | pdfplumber extraction — splits on "Work Order Information", regex per field |
+| `normalizer.py` | Maps mfr codes, derives `type` from labor code, derives `status` from comments, normalizes dates to ISO |
+| `requirements.txt` | `fastapi`, `uvicorn`, `pdfplumber`, `python-multipart` |
+
+---
+
 ## Closed Issues
 
 (none yet)
