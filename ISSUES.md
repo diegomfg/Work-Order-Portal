@@ -15,6 +15,7 @@ The WorkOrder interface is defined in the project knowledge file, but we need to
 
 **Tasks:**
 - [x] Analyze HTML demo data structure (73 work orders)
+- [x] Confirm `customerId` field — it is the `Customer: {number}` value that appears before the customer name in each WO block in the Ideal PDF
 - [ ] Document any discrepancies or edge cases between PDF fields and WorkOrder interface
 - [ ] Update WorkOrder interface if needed
 
@@ -61,7 +62,7 @@ Stihl, Scag, Wright, Echo, RedMax, Exmark, Husqvarna, Honda, Generac, Shindaiwa,
 - `inprogress`: 0 orders (all exports are completed WOs)
 
 **Next Steps:**
-- Confirm all 4 missing fields (`customerId`, `startDate`, `outDate`, `meter`) are present in the actual PDF source
+- Confirm `startDate`, `outDate`, and `meter` are present in the actual PDF source (`customerId` confirmed ✓)
 - Update WorkOrder interface if any discrepancies are found
 
 ---

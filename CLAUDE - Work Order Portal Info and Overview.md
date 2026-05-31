@@ -347,12 +347,25 @@ Equipment (mfr + model) · description · serial/VIN · tag # · date in · date
 
 **Never shown to customers:** technician name/code, labor cost, parts cost, tax, order total, any pricing, pickup/delivery fields.
 
-### Filters (all combinable, live update)
+### Customer portal — search only
+
+The customer-facing `/status` page is a **lookup interface, not a browsable list.** No results are shown until the user enters a query. This is intentional — a browsable list would let customers see other people's work orders.
+
+| Search matches | Notes |
+|---|---|
+| Work order ID | Exact or partial match |
+| Serial number | Exact or partial match |
+| Customer ID | The `Customer: {number}` field from Ideal exports; visible on invoices |
+
+Phone number search was considered and **rejected** — the phone number on a given invoice may differ from the account's primary contact number, making it an unreliable lookup key.
+
+### Admin panel — filters (all combinable, live update)
+
+The dealer-facing `/admin` view can expose richer filtering since it is not public:
 
 | Filter | Behavior |
 |---|---|
-| Search input | Matches customer name, WO #, serial  | Not many filters should be allowed as it introduces the possibility of customers seeing other people's information.
-| Customer dropdown | Populated from data, sorted A–Z |
+| Search input | Matches customer name, WO #, serial, customer ID |
 | Status dropdown | Fixed: completed / warranty / nwf / review / inprogress |
 | Equipment type | Fixed: lawn / 2-cycle / other |
 | Date (in-date) | Populated from data, sorted most recent first |
