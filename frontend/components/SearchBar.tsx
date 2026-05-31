@@ -5,9 +5,15 @@ import styles from './SearchBar.module.css';
 interface Props {
   value: string;
   onChange: (value: string) => void;
+  onSubmit: () => void;
+  onClear: () => void;
 }
 
-export default function SearchBar({ value, onChange }: Props) {
+export default function SearchBar({ value, onChange, onSubmit, onClear }: Props) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') onSubmit();
+  }
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.inputWrap}>
@@ -18,18 +24,22 @@ export default function SearchBar({ value, onChange }: Props) {
         <input
           type="text"
           className={styles.input}
-          placeholder="Work order #, serial number, or customer ID..."
+          placeholder="Work order #, unit serial number, or customer ID..."
           value={value}
           onChange={e => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           autoFocus
           spellCheck={false}
         />
         {value && (
-          <button className={styles.clear} onClick={() => onChange('')} aria-label="Clear search">
+          <button className={styles.clear} onClick={onClear} aria-label="Clear search">
             ✕
           </button>
         )}
       </div>
+      <button className={styles.searchBtn} onClick={onSubmit}>
+        Search
+      </button>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { mockWorkOrders } from '@/lib/mockData';
 import { WorkOrder } from '@/lib/types';
 import SearchBar from '@/components/SearchBar';
@@ -19,8 +19,19 @@ function search(workorders: WorkOrder[], query: string): WorkOrder[] {
 
 export default function StatusPage() {
   const [query, setQuery] = useState('');
-  const results = useMemo(() => search(mockWorkOrders, query), [query]);
-  const hasQuery = query.trim().length > 0;
+  const [submittedQuery, setSubmittedQuery] = useState('');
+
+  const results = search(mockWorkOrders, submittedQuery);
+  const hasSubmitted = submittedQuery.trim().length > 0;
+
+  function handleSubmit() {
+    setSubmittedQuery(query);
+  }
+
+  function handleClear() {
+    setQuery('');
+    setSubmittedQuery('');
+  }
 
   return (
     <div className={styles.page}>
@@ -41,22 +52,27 @@ export default function StatusPage() {
       <div className={styles.hero}>
         <h1 className={styles.heroTitle}>Check Your Repair Status</h1>
         <p className={styles.heroSub}>
-          Enter your work order number, serial number, or customer ID
+          Enter your work order number, unit serial number, or customer ID
         </p>
-        <SearchBar value={query} onChange={setQuery} />
+        <SearchBar
+          value={query}
+          onChange={setQuery}
+          onSubmit={handleSubmit}
+          onClear={handleClear}
+        />
       </div>
 
       <main className={styles.main}>
-        {!hasQuery && (
+        {!hasSubmitted && (
           <div className={styles.emptyState}>
             <p>Your work order details will appear here.</p>
           </div>
         )}
 
-        {hasQuery && results.length === 0 && (
+        {hasSubmitted && results.length === 0 && (
           <div className={styles.emptyState}>
-            <p>No work orders found for <strong>&ldquo;{query}&rdquo;</strong>.</p>
-            <p className={styles.emptyHint}>Try your work order number, serial number, or customer ID from a previous invoice.</p>
+            <p>No work orders found for <strong>&ldquo;{submittedQuery}&rdquo;</strong>.</p>
+            <p className={styles.emptyHint}>Try your work order number, your unit&apos;s serial number, or your customer ID from a previous invoice.</p>
           </div>
         )}
 
