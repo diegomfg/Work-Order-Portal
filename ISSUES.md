@@ -107,10 +107,10 @@ This confirms the same status code is used for **two very different outcomes**.
 ---
 
 ### ISSUE-003: Build Admin Dashboard + Upload Flow
-**Status:** Open
+**Status:** In Progress
 **Priority:** High
 **Created:** 2026-05-31
-**Updated:** 2026-05-31
+**Updated:** 2026-06-01
 
 **Description:**
 Build the dealer-facing admin section: a dashboard with upload history and a multi-step PDF upload flow that parses, lets admins review/edit, and publishes work orders to the database.
@@ -169,14 +169,24 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 
 ---
 
-#### Next.js API routes to build
+#### Database schema + connection (completed 6/1/2026)
 
-| Route | Method | Purpose |
-|---|---|---|
-| `/api/parse` | POST | Accepts PDF upload, forwards to Python parser, returns `WorkOrder[]` |
-| `/api/workorders` | GET | Returns all WOs from DB (with optional status/type filters) |
-| `/api/workorders/publish` | POST | Upserts a reviewed batch of `WorkOrder[]` into DB |
-| `/api/meta` | GET | Returns `{ lastUpdated: string \| null }` |
+- [x] SQLite schema: `workorders`, `meta`, `uploads` tables with indexes
+- [x] `better-sqlite3` connection module with singleton pattern
+- [x] Helper functions: upsert, search, stats, upload logging
+
+---
+
+#### Next.js API routes (completed 6/1/2026)
+
+| Route | Method | Purpose | Status |
+|---|---|---|---|
+| `/api/parse` | POST | Accepts PDF upload, forwards to Python parser, returns `WorkOrder[]` | Done |
+| `/api/workorders` | GET | Returns all WOs from DB (with optional status/type filters) | Done |
+| `/api/workorders/search` | GET | Customer portal lookup by WO ID, customer ID, or serial | Done |
+| `/api/workorders/publish` | POST | Upserts a reviewed batch of `WorkOrder[]` into DB | Done |
+| `/api/uploads` | GET | Returns upload history log | Done |
+| `/api/meta` | GET | Returns `{ lastUpdated: string \| null }` | Done |
 
 ---
 
@@ -188,6 +198,111 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 | `pdf_parser.py` | pdfplumber extraction — splits on "Work Order Information", regex per field |
 | `normalizer.py` | Maps mfr codes, derives `type` from labor code, derives `status` from comments, normalizes dates to ISO |
 | `requirements.txt` | `fastapi`, `uvicorn`, `pdfplumber`, `python-multipart` |
+
+See **ISSUE-004** for parser implementation details.
+
+---
+
+### ISSUE-004: Build Python PDF Parser Microservice
+**Status:** Open
+**Priority:** High
+**Created:** 2026-06-01
+**Updated:** 2026-06-01
+
+**Description:**
+Build the FastAPI microservice that extracts work order data from Ideal DMS PDF exports using pdfplumber. This is a separate HTTP server that the Next.js `/api/parse` route calls.
+
+---
+
+#### Architecture
+
+```
+Next.js (/api/parse)  ──POST multipart PDF──>  Python (FastAPI :8000/parse)
+                      <──JSON WorkOrder[]────
+```
+
+The parser runs as a standalone process on port 8000 (configurable via `PARSER_URL` env var in Next.js).
+
+---
+
+#### Files to create (`parser/`)
+
+| File | Purpose |
+|---|---|
+| `main.py` | FastAPI app with `POST /parse` endpoint |
+| `pdf_parser.py` | pdfplumber extraction logic — splits PDF text on "Work Order Information" |
+| `normalizer.py` | Field normalization: mfr codes, status derivation, date formatting |
+| `requirements.txt` | Dependencies: `fastapi`, `uvicorn`, `pdfplumber`, `python-multipart` |
+
+---
+
+#### Tasks
+
+- [ ] Create `parser/` directory structure
+- [ ] Implement `main.py` — FastAPI app with `/parse` and `/health` endpoints
+- [ ] Implement `pdf_parser.py` — extract raw fields from PDF blocks using regex
+- [ ] Implement `normalizer.py` — transform raw fields to WorkOrder schema
+- [ ] Create `requirements.txt`
+- [ ] Test against sample PDF (samples/sample-week.pdf)
+- [ ] Verify field extraction matches expected WorkOrder interface
+- [ ] Document how to run the parser locally
+
+---
+
+#### Field extraction patterns (from Ideal PDF)
+
+Each work order block in the PDF starts with "Work Order Information" and contains:
+
+| Field | Pattern | Notes |
+|---|---|---|
+| `id` | `WO ID:\s*(\d+)` | Primary key |
+| `customerId` | `Customer:\s*(\d+)` | Before customer name |
+| `customer` | Line after "Customer: {id}" | Mixed format: "LAST, FIRST" or "COMPANY" |
+| `tag` | `Tag #:\s*(.+)` | |
+| `tech` | `Tech:\s*(\w+)` | Initials only |
+| `inDate` | `In Date:\s*([\d/]+)` | US format, normalize to ISO |
+| `startDate` | `Start Date:\s*([\d/]+)` | nullable |
+| `complDate` | `Compl\. Date:\s*([\d/]+)` | nullable |
+| `outDate` | `Out Date:\s*([\d/]+)` | nullable |
+| `mfr` | First 3-4 chars of model field | Map via manufacturer codes |
+| `model` | Full model field | |
+| `serial` | `Serial/Vin:\s*(.+)` | |
+| `meter` | `Meter:\s*(.+)` | nullable for handheld |
+| `laborCode` | Labor line item | Used to derive `type`, not stored |
+| `comments` | Multi-line block before Amounts | |
+
+---
+
+#### Status derivation logic
+
+Check in order:
+1. Comments contain "UNDER WARRANTY" → `warranty`
+2. Comments contain "NWF" or "NOTHING WRONG" → `nwf`
+3. Comments empty and no flags → `review`
+4. Has `inDate` but no `complDate` → `inprogress`
+5. Otherwise → `completed`
+
+---
+
+#### Equipment type derivation
+
+| Labor code contains | Type |
+|---|---|
+| `LBR LABOR LAWN EQUIPMENT` | `lawn` |
+| `LBRTCLABOR POWER EQUIPMENT 2 CYCLE` | `2cycle` |
+| Anything else | `other` |
+
+---
+
+#### Manufacturer code map
+
+```
+STI  → Stihl      SCA  → Scag       WRI  → Wright
+ECH  → Echo       RED  → RedMax     EXM  → Exmark
+HUS  → Husqvarna  HON  → Honda      GEN  → Generac
+SHI  → Shindaiwa  MUR  → Murray     SIMP → Simpson
+MISC → Misc       EXC  → Excalibur
+```
 
 ---
 
