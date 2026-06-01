@@ -55,10 +55,11 @@ ENV/
 .mypy_cache/
 .ruff_cache/
 
-# SQLite
+# SQLite / Local data
 *.db
 *.sqlite
 *.sqlite3
+frontend/data/
 
 # IDE / Editors
 .idea/
