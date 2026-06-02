@@ -204,10 +204,10 @@ See **ISSUE-004** for parser implementation details.
 ---
 
 ### ISSUE-004: Build Python PDF Parser Microservice
-**Status:** Open
+**Status:** Complete
 **Priority:** High
 **Created:** 2026-06-01
-**Updated:** 2026-06-01
+**Updated:** 2026-06-02
 
 **Description:**
 Build the FastAPI microservice that extracts work order data from Ideal DMS PDF exports using pdfplumber. This is a separate HTTP server that the Next.js `/api/parse` route calls.
@@ -225,27 +225,56 @@ The parser runs as a standalone process on port 8000 (configurable via `PARSER_U
 
 ---
 
-#### Files to create (`parser/`)
+#### Files created (`parser/`)
 
 | File | Purpose |
 |---|---|
-| `main.py` | FastAPI app with `POST /parse` endpoint |
+| `main.py` | FastAPI app with `POST /parse` and `GET /health` endpoints |
 | `pdf_parser.py` | pdfplumber extraction logic — splits PDF text on "Work Order Information" |
 | `normalizer.py` | Field normalization: mfr codes, status derivation, date formatting |
 | `requirements.txt` | Dependencies: `fastapi`, `uvicorn`, `pdfplumber`, `python-multipart` |
+| `test_parser.py` | Test script to validate parser against sample PDF |
 
 ---
 
 #### Tasks
 
-- [ ] Create `parser/` directory structure
-- [ ] Implement `main.py` — FastAPI app with `/parse` and `/health` endpoints
-- [ ] Implement `pdf_parser.py` — extract raw fields from PDF blocks using regex
-- [ ] Implement `normalizer.py` — transform raw fields to WorkOrder schema
-- [ ] Create `requirements.txt`
-- [ ] Test against sample PDF (samples/sample-week.pdf)
-- [ ] Verify field extraction matches expected WorkOrder interface
-- [ ] Document how to run the parser locally
+- [x] Create `parser/` directory structure
+- [x] Implement `main.py` — FastAPI app with `/parse` and `/health` endpoints
+- [x] Implement `pdf_parser.py` — extract raw fields from PDF blocks using regex
+- [x] Implement `normalizer.py` — transform raw fields to WorkOrder schema
+- [x] Create `requirements.txt`
+- [x] Test against sample PDF (72 work orders extracted successfully)
+- [x] Verify field extraction matches expected WorkOrder interface
+- [x] Document how to run the parser locally (see below)
+
+---
+
+#### How to run the parser locally
+
+```bash
+cd parser
+pip install -r requirements.txt
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Test the parser:
+```bash
+python test_parser.py          # Basic test
+python test_parser.py --verbose # Show sample work orders
+```
+
+---
+
+#### Test Results (2026-06-02)
+
+Tested against `samples/Work Order History List from March 25 until April 1 (one week).pdf`:
+
+- **72 work orders** parsed successfully
+- **14 manufacturers** recognized: Echo, Excalibur, Exmark, Generac, Honda, Husqvarna, Misc, Murray, RedMax, Scag, Shindaiwa, Simpson, Stihl, Wright
+- **Status breakdown:** 54 completed, 7 warranty, 5 nwf, 4 review, 2 inprogress
+- **Type breakdown:** 32 lawn, 17 2cycle, 23 other
+- All required fields extracted (id, customerId, customer, dates, equipment info, comments)
 
 ---
 
