@@ -2,69 +2,6 @@
 
 ## Open Issues
 
-### ISSUE-001: Verify Work Order Structure Against Source Files
-**Status:** In Progress
-**Priority:** High
-**Created:** 2026-05-29
-**Updated:** 2026-05-29
-
-**Description:**
-The WorkOrder interface is defined in the project knowledge file, but we need to cross-verify that the field definitions match actual Ideal PDF exports.
-
-**Note:** CSV export is not available for Work Order History reports — only for Pending reports, which All Dade does not use. CSV parser has been scrapped.
-
-**Tasks:**
-- [x] Analyze HTML demo data structure (73 work orders)
-- [x] Confirm `customerId` field — it is the `Customer: {number}` value that appears before the customer name in each WO block in the Ideal PDF
-- [ ] Document any discrepancies or edge cases between PDF fields and WorkOrder interface
-- [ ] Update WorkOrder interface if needed
-
-**Findings from HTML Demo Analysis:**
-
-The HTML demo (`work-order-portal-week.html`) contains 73 work orders parsed from the one-week PDF export.
-
-### Fields Present in HTML Demo
-```
-id, customer, tag, tech, inDate, complDate, mfr, model, desc, serial, type, status, comments
-```
-
-### Fields Missing from HTML Demo (defined in MD but not extracted)
-| Field | Notes |
-|-------|-------|
-| `customerId` | Internal Ideal customer ID — needs to be extracted from PDF |
-| `startDate` | Date work began — needs to be extracted from PDF |
-| `outDate` | Date equipment left shop — needs to be extracted from PDF |
-| `meter` | Hour meter reading — needs to be extracted from PDF |
-
-### Date Format Discrepancy
-- **MD file specifies:** ISO format `"2026-03-31"`
-- **HTML demo uses:** US format `"3/31/2026"`
-- **Action:** Normalize to ISO in database, format for display in UI
-
-### Tech Field Visibility
-- HTML demo displays tech initials to users
-- MD file says tech should be stored but **never shown to customers**
-- **Action:** Hide from customer-facing UI in production
-
-### Manufacturers Found in Data
-Stihl, Scag, Wright, Echo, RedMax, Exmark, Husqvarna, Honda, Generac, Shindaiwa, Murray, Simpson, Misc, B&E
-
-### Equipment Types Distribution
-- `lawn`: Zero-turn mowers, riders, walk-behinds
-- `2cycle`: Trimmers, blowers, chainsaws, hedge trimmers, edgers
-- `other`: Generators, pressure washers, sprayers, trailers, blade sharpening
-
-### Status Distribution in Demo Data
-- `completed`: 62 orders
-- `warranty`: 6 orders
-- `nwf`: 5 orders
-- `review`: 3 orders (empty comments)
-- `inprogress`: 0 orders (all exports are completed WOs)
-
-**Next Steps:**
-- Confirm `startDate`, `outDate`, and `meter` are present in the actual PDF source (`customerId` confirmed ✓)
-- Update WorkOrder interface if any discrepancies are found
-
 ---
 
 ### ISSUE-002: Clarify "NWF" Status Meaning
@@ -337,4 +274,56 @@ MISC → Misc       EXC  → Excalibur
 
 ## Closed Issues
 
-(none yet)
+### ISSUE-001: Verify Work Order Structure Against Source Files
+**Status:** Closed
+**Priority:** High
+**Created:** 2026-05-29
+**Closed:** 2026-06-04
+
+**Resolution:**
+Work order structure finalized and verified against actual Ideal DMS PDF exports. The Python parser (ISSUE-004) successfully extracts all required fields.
+
+#### Final Field Specification
+
+**Customer Portal displays:**
+| Field | Description |
+|-------|-------------|
+| `id` | Work Order ID (primary identifier) |
+| `customerId` | Ideal's internal customer number |
+| `customer` | Customer name |
+| `inDate` | Date equipment came in (ISO format) |
+| `complDate` | Completion date (if present) |
+| `mfr` | Manufacturer (normalized from code) |
+| `model` | Model code |
+| `desc` | Equipment description |
+| `serial` | Serial number |
+| `type` | Equipment type (`lawn`, `2cycle`, `other`) |
+| `status` | Work order status |
+| `comments` | Tech comments (includes labor performed) |
+
+**Admin-only fields (stored but hidden from customers):**
+| Field | Description |
+|-------|-------------|
+| `tech` | Technician initials |
+| `tag` | Shop equipment tag |
+| `startDate` | Date work began |
+| `outDate` | Date equipment left shop |
+
+**Fields explicitly removed:**
+| Field | Reason |
+|-------|--------|
+| `meter` | Not useful to display to customers |
+| `failureDate` | Not used; `inDate` is the relevant date |
+
+#### Export Workflow
+- Reports exported by **In Date range** (e.g., 1 day, 1 week)
+- Recommended: 1 week max per upload to keep review manageable (~72 WOs/week typical)
+
+#### PDF Structure
+- **Left half:** Customer info, WO ID, equipment details, dates
+- **Right half:** Labor/sales data — only extract comments, never show pricing
+
+#### Key Decisions
+- Dates normalized to ISO format (`YYYY-MM-DD`) in database, formatted for display in UI
+- Tech initials stored for admin use but never shown to customers
+- Comments field captures labor performed (no separate labor field needed)

@@ -16,7 +16,6 @@ CREATE TABLE IF NOT EXISTS workorders (
   model        TEXT NOT NULL,            -- Model code
   description  TEXT NOT NULL,            -- Human-readable equipment description
   serial       TEXT,                     -- Serial number (sometimes a customer-name placeholder)
-  meter        TEXT,                     -- Hour meter reading (null for handheld equipment)
   type         TEXT NOT NULL             -- 'lawn' | '2cycle' | 'other'
     CHECK (type IN ('lawn', '2cycle', 'other')),
   status       TEXT NOT NULL             -- 'completed' | 'warranty' | 'nwf' | 'review' | 'inprogress'

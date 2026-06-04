@@ -52,7 +52,6 @@ export interface WorkOrder {
   model: string;
   description: string;
   serial: string | null;
-  meter: string | null;
   type: 'lawn' | '2cycle' | 'other';
   status: 'completed' | 'warranty' | 'nwf' | 'review' | 'inprogress';
   comments: string | null;
@@ -89,10 +88,10 @@ export function upsertWorkOrders(workorders: Omit<WorkOrder, 'created_at' | 'upd
   const upsert = db.prepare(`
     INSERT INTO workorders (
       id, customer_id, customer, tag, tech, in_date, start_date, compl_date, out_date,
-      mfr, model, description, serial, meter, type, status, comments
+      mfr, model, description, serial, type, status, comments
     ) VALUES (
       @id, @customer_id, @customer, @tag, @tech, @in_date, @start_date, @compl_date, @out_date,
-      @mfr, @model, @description, @serial, @meter, @type, @status, @comments
+      @mfr, @model, @description, @serial, @type, @status, @comments
     )
     ON CONFLICT(id) DO UPDATE SET
       customer_id = excluded.customer_id,
@@ -107,7 +106,6 @@ export function upsertWorkOrders(workorders: Omit<WorkOrder, 'created_at' | 'upd
       model       = excluded.model,
       description = excluded.description,
       serial      = excluded.serial,
-      meter       = excluded.meter,
       type        = excluded.type,
       status      = excluded.status,
       comments    = excluded.comments,
@@ -197,7 +195,7 @@ export function searchWorkOrders(query: string): Omit<WorkOrder, 'tech'>[] {
   if (!isNaN(numericQuery)) {
     const byId = db.prepare(`
       SELECT id, customer_id, customer, tag, in_date, start_date, compl_date, out_date,
-             mfr, model, description, serial, meter, type, status, comments, created_at, updated_at
+             mfr, model, description, serial, type, status, comments, created_at, updated_at
       FROM workorders WHERE id = ?
     `).all(numericQuery) as Omit<WorkOrder, 'tech'>[];
     if (byId.length > 0) return byId;
@@ -207,7 +205,7 @@ export function searchWorkOrders(query: string): Omit<WorkOrder, 'tech'>[] {
   const pattern = `%${query}%`;
   return db.prepare(`
     SELECT id, customer_id, customer, tag, in_date, start_date, compl_date, out_date,
-           mfr, model, description, serial, meter, type, status, comments, created_at, updated_at
+           mfr, model, description, serial, type, status, comments, created_at, updated_at
     FROM workorders
     WHERE customer_id = ?
        OR serial LIKE ?

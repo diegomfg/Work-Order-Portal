@@ -14,7 +14,6 @@ export interface WorkOrder {
   model: string;
   desc: string;
   serial: string;
-  meter: string | null;
   type: EquipmentType;
   status: WorkOrderStatus;
   comments: string;

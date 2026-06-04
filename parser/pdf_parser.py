@@ -263,9 +263,6 @@ def parse_work_order_block(block: str) -> dict:
     if serial:
         serial = serial.strip()
 
-    # Meter - just a number or empty
-    meter = extract_field(block, r'Meter:\s*(\d+)')
-
     # Description - stops at "Out Date:" or similar
     desc = extract_field(block, r'Description:\s*([A-Z0-9\-\s\"\'\(\)\/]+?)(?=\s+Out Date:|\s+Tax|\s*$)')
     if desc:
@@ -302,7 +299,6 @@ def parse_work_order_block(block: str) -> dict:
         "model": full_model,
         "desc": desc or "",
         "serial": serial or "",
-        "meter": meter,
         "labor_code": labor_code,
         "comments": comments,
     }

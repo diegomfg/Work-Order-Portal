@@ -183,7 +183,6 @@ def normalize_work_order(raw_wo: dict) -> dict:
         "model": model,
         "desc": clean_text(raw_wo.get("desc", "")),
         "serial": raw_wo.get("serial", "").strip(),
-        "meter": (raw_wo.get("meter") or "").strip() or None,
         "type": eq_type,
         "status": status,
         "comments": comments,
