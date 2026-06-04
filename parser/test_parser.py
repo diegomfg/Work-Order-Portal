@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from pdf_parser import parse_ideal_pdf
 
 # Sample PDF path
-SAMPLE_PDF = Path(__file__).parent.parent / "samples" / "Work Order History List from March 25 until April 1 (one week).pdf"
+SAMPLE_PDF = Path(__file__).parent.parent / "samples" / "Work Order Test Data.pdf"
 
 
 def test_parser(verbose: bool = False):
