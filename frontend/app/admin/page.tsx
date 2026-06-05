@@ -1,20 +1,50 @@
+import Link from 'next/link';
+import styles from './page.module.css';
+
+const STAT_CARDS = [
+  { label: 'Total',       color: 'var(--text)'   },
+  { label: 'Completed',   color: 'var(--green)'  },
+  { label: 'Warranty',    color: 'var(--purple)' },
+  { label: 'NWF',         color: 'var(--amber)'  },
+  { label: 'Review',      color: 'var(--red)'    },
+  { label: 'In Progress', color: 'var(--blue)'   },
+];
+
 export default function AdminPage() {
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--dark)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'var(--muted)',
-      fontFamily: 'var(--font-body)',
-    }}>
-      <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.5rem', color: 'var(--orange)' }}>
-          Admin Dashboard
-        </div>
-        <p>PDF upload and work order management — coming soon.</p>
+    <>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>Dashboard</h1>
+        <Link href="/admin/upload" className={styles.uploadBtn}>
+          Upload New Report →
+        </Link>
       </div>
-    </div>
+
+      <p className={styles.lastUpdated}>
+        Last updated: <strong>—</strong>
+      </p>
+
+      <div className={styles.statsStrip}>
+        {STAT_CARDS.map((card) => (
+          <div key={card.label} className={styles.statCard}>
+            <span className={styles.statValue} style={{ color: card.color }}>—</span>
+            <span className={styles.statLabel}>{card.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <section>
+        <h2 className={styles.sectionTitle}>Recent Uploads</h2>
+        <div className={styles.uploadsBox}>
+          <p className={styles.emptyState}>
+            No uploads yet.{' '}
+            <Link href="/admin/upload" className={styles.inlineLink}>
+              Upload a PDF report
+            </Link>{' '}
+            to get started.
+          </p>
+        </div>
+      </section>
+    </>
   );
 }

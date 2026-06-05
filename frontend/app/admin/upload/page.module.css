@@ -1,0 +1,536 @@
+.page {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Step bar ─────────────────────────────────────────────────── */
+
+.stepBar {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 3rem;
+}
+
+.stepGroup {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.stepGroup:last-child {
+  flex: 0;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.stepDot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--subtle);
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.stepDotActive {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: rgba(255, 136, 0, 0.08);
+}
+
+.stepDotDone {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #fff;
+}
+
+.stepLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--subtle);
+  transition: color 0.2s;
+}
+
+.stepLabelActive {
+  color: var(--orange);
+}
+
+.stepConnector {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  margin-top: 14px;
+  transition: background 0.2s;
+}
+
+.stepConnectorDone {
+  background: var(--orange);
+}
+
+/* ─── Shared step content ──────────────────────────────────────── */
+
+.stepContent {
+  flex: 1;
+}
+
+.stepTitle {
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.stepDesc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+.stepActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────── */
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: opacity 0.15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ghostBtn {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 0.65rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.ghostBtn:hover {
+  color: var(--text);
+  border-color: var(--subtle);
+}
+
+/* ─── Drop zone ────────────────────────────────────────────────── */
+
+.dropZone {
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+  cursor: default;
+}
+
+.dropZoneOver {
+  border-color: var(--orange);
+  background: rgba(255, 136, 0, 0.05);
+}
+
+.dropZoneReady {
+  border-color: var(--green);
+  border-style: solid;
+}
+
+.dropEmptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 2.5rem;
+  pointer-events: none;
+}
+
+.dropEmptyState > label {
+  pointer-events: auto;
+}
+
+.dropUploadIcon {
+  width: 48px;
+  height: 48px;
+  color: var(--subtle);
+  margin-bottom: 0.25rem;
+}
+
+.dropText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.dropOr {
+  font-size: 0.8rem;
+  color: var(--subtle);
+}
+
+.browseBtn {
+  display: inline-flex;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  font-family: var(--font-body);
+}
+
+.browseBtn:hover {
+  border-color: var(--subtle);
+}
+
+.dropHint {
+  font-size: 0.75rem;
+  color: var(--subtle);
+  margin-top: 0.1rem;
+}
+
+.dropFileState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 2.5rem;
+}
+
+.dropFileIcon {
+  width: 40px;
+  height: 40px;
+  color: var(--green);
+}
+
+.dropFileName {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  word-break: break-all;
+  text-align: center;
+  max-width: 320px;
+}
+
+.dropRemove {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+  text-decoration: underline;
+  padding: 0;
+}
+
+.dropRemove:hover {
+  color: var(--red);
+}
+
+/* ─── Parsing ──────────────────────────────────────────────────── */
+
+.parsingCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  gap: 1.25rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--border);
+  border-top-color: var(--orange);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.parsingTitle {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.parsingDesc {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* ─── Review table ─────────────────────────────────────────────── */
+
+.tableWrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--subtle);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.thCenter {
+  text-align: center;
+}
+
+.tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.tr:last-child {
+  border-bottom: none;
+}
+
+.tr:hover {
+  background: var(--card);
+}
+
+.trExcluded {
+  opacity: 0.35;
+}
+
+.td {
+  padding: 0.7rem 1rem;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.tdDim {
+  color: var(--subtle);
+  font-size: 0.8rem;
+}
+
+.tdMono {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.tdEquip {
+  font-size: 0.85rem;
+}
+
+.tdCenter {
+  text-align: center;
+}
+
+.statusSelect {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 110px;
+}
+
+.statusSelect:hover:not(:disabled) {
+  border-color: var(--subtle);
+}
+
+.statusSelect:disabled {
+  cursor: not-allowed;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--orange);
+}
+
+.summaryBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+}
+
+.summaryCount {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.summaryCount strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.summaryExcluded {
+  color: var(--subtle);
+}
+
+/* ─── Publish ──────────────────────────────────────────────────── */
+
+.publishCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 1rem;
+  gap: 1.5rem;
+}
+
+.publishCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.publishCount {
+  font-family: var(--font-display);
+  font-size: 4rem;
+  letter-spacing: 0.04em;
+  color: var(--orange);
+  line-height: 1;
+}
+
+.publishCountLabel {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 600;
+}
+
+.publishActions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.publishBtn {
+  display: inline-flex;
+  align-items: center;
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.75rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.publishBtn:hover {
+  opacity: 0.85;
+}
+
+/* ─── Success ──────────────────────────────────────────────────── */
+
+.successCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 2rem;
+  gap: 1.25rem;
+}
+
+.successCircle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(76, 175, 125, 0.15);
+  border: 2px solid var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+}
+
+.successTitle {
+  font-family: var(--font-display);
+  font-size: 3rem;
+  letter-spacing: 0.04em;
+  color: var(--green);
+}
+
+.successDesc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 340px;
+}
