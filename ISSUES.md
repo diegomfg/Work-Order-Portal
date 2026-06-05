@@ -47,7 +47,7 @@ This confirms the same status code is used for **two very different outcomes**.
 **Status:** In Progress
 **Priority:** High
 **Created:** 2026-05-31
-**Updated:** 2026-06-01
+**Updated:** 2026-06-05
 
 **Description:**
 Build the dealer-facing admin section: a dashboard with upload history and a multi-step PDF upload flow that parses, lets admins review/edit, and publishes work orders to the database.
@@ -70,39 +70,42 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 
 ---
 
-#### Admin dashboard (`/admin`)
+#### Admin dashboard (`/admin`) — UI complete (6/5/2026)
 
 **Tasks:**
-- [ ] Stats strip: total WO count + breakdown by status (completed / warranty / nwf / review / inprogress)
-- [ ] "Last updated" timestamp — reads from DB meta table, shows date + time
-- [ ] "Upload New Report" button → `/admin/upload`
-- [ ] Recent uploads log (stretch goal — list of past upload sessions with WO counts)
+- [x] Stats strip: total WO count + breakdown by status (completed / warranty / nwf / review / inprogress)
+- [x] "Last updated" timestamp — placeholder, wired to DB next
+- [x] "Upload New Report" button → `/admin/upload`
+- [ ] Stats strip wired to `/api/workorders?stats=true`
+- [ ] "Last updated" wired to `/api/meta`
+- [ ] Recent uploads log — wired to `/api/uploads`
 
 ---
 
-#### Upload flow (`/admin/upload`) — 4 steps, single page
+#### Upload flow (`/admin/upload`) — UI complete (6/5/2026)
 
 **Step 1 — Drop zone**
-- [ ] Drag & drop target for PDF files
-- [ ] "Browse files" fallback button
-- [ ] PDF-only validation (reject other file types with inline error)
+- [x] Drag & drop target for PDF files
+- [x] "Browse files" fallback button
+- [ ] PDF-only validation — inline error on wrong file type (currently silently ignores)
 
 **Step 2 — Parsing**
-- [ ] Loading state while PDF is POSTed to Python parser microservice
+- [x] Loading state (spinner)
+- [ ] Wire to `POST /api/parse` with PDF file
 - [ ] Error state if parser returns a failure
 
 **Step 3 — Review**
-- [ ] Table of all parsed work orders (WO #, customer, equipment, status, date in)
-- [ ] Per-row status override (dropdown — admin can correct misclassified statuses before publish)
-- [ ] Per-row exclude toggle (checkbox — admin can drop individual WOs from the publish batch)
-- [ ] Summary bar: "X work orders — Y new, Z updates" (requires DB lookup to determine new vs update)
-- [ ] Field editing scoped to status only for now; full field editing deferred
+- [x] Table of all parsed work orders (WO #, customer, equipment, status, date in)
+- [x] Per-row status override (dropdown)
+- [x] Per-row exclude toggle (checkbox)
+- [x] Summary bar with active count and excluded count
+- [ ] "Y new, Z updates" breakdown (requires DB lookup — deferred to API wiring)
 
 **Step 4 — Publish / Done**
-- [ ] "Publish N work orders" confirmation button
-- [ ] POST reviewed + filtered WOs to upsert API route
-- [ ] Write `last_updated` timestamp to DB meta table on success
-- [ ] Success state → redirect to `/admin` dashboard
+- [x] Publish confirmation screen with WO count
+- [x] Success state
+- [ ] Wire publish button to `POST /api/workorders/publish`
+- [ ] Write `last_updated` on success → redirect to `/admin`
 
 ---
 
