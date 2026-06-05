@@ -104,3 +104,51 @@
 .inlineLink:hover {
   text-decoration: underline;
 }
+
+.uploadsTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.uploadsTh {
+  padding: 0.65rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--subtle);
+  border-bottom: 1px solid var(--border);
+}
+
+.uploadsThNum {
+  text-align: right;
+}
+
+.uploadsTr {
+  border-bottom: 1px solid var(--border);
+}
+
+.uploadsTr:last-child {
+  border-bottom: none;
+}
+
+.uploadsTr:hover {
+  background: var(--card);
+}
+
+.uploadsTd {
+  padding: 0.65rem 1rem;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+.uploadsTdMuted {
+  color: var(--muted);
+  font-size: 0.825rem;
+}
+
+.uploadsTdGreen {
+  color: var(--green);
+}

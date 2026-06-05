@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
-import type { WorkOrderStatus } from '@/lib/types';
+import type { WorkOrder, WorkOrderStatus } from '@/lib/types';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -16,16 +16,6 @@ type ReviewRow = {
   status: WorkOrderStatus;
   excluded: boolean;
 };
-
-const MOCK_ROWS: ReviewRow[] = [
-  { id: '1398925', customer: 'SMITH, JOHN',          mfr: 'Stihl',     model: 'MS 271',         inDate: '2025-03-25', status: 'completed',  excluded: false },
-  { id: '1399688', customer: 'JONES, MARY',          mfr: 'Honda',     model: 'HRX217VKA',      inDate: '2025-03-25', status: 'nwf',        excluded: false },
-  { id: '1399712', customer: 'RODRIGUEZ LANDSCAPING',mfr: 'Scag',      model: 'SWZT52V-22FX',   inDate: '2025-03-26', status: 'inprogress', excluded: false },
-  { id: '1399834', customer: 'BROWN, ALICE',         mfr: 'Echo',      model: 'PB-760ST',       inDate: '2025-03-26', status: 'warranty',   excluded: false },
-  { id: '1399901', customer: 'WILLIAMS, BOB',        mfr: 'Husqvarna', model: '460 Rancher',    inDate: '2025-03-27', status: 'completed',  excluded: false },
-  { id: '1399955', customer: 'DAVIS LAWN CARE',      mfr: 'Exmark',    model: 'LZX921EKC604',   inDate: '2025-03-27', status: 'review',     excluded: false },
-  { id: '1400012', customer: 'WILSON, JAMES',        mfr: 'Stihl',     model: 'FS 111 R',       inDate: '2025-03-28', status: 'completed',  excluded: false },
-];
 
 const STATUS_OPTIONS: WorkOrderStatus[] = ['completed', 'warranty', 'nwf', 'review', 'inprogress'];
 
@@ -48,29 +38,101 @@ const STATUS_COLORS: Record<WorkOrderStatus, string> = {
 const STEPS = ['Drop', 'Parsing', 'Review', 'Publish'];
 
 export default function UploadPage() {
-  const [step, setStep]           = useState<Step>(1);
-  const [fileName, setFileName]   = useState<string | null>(null);
-  const [dragOver, setDragOver]   = useState(false);
-  const [rows, setRows]           = useState<ReviewRow[]>(MOCK_ROWS);
-  const [published, setPublished] = useState(false);
+  const [step, setStep]             = useState<Step>(1);
+  const [file, setFile]             = useState<File | null>(null);
+  const [dragOver, setDragOver]     = useState(false);
+  const [rows, setRows]             = useState<ReviewRow[]>([]);
+  const [parsedData, setParsedData] = useState<Map<string, WorkOrder>>(new Map());
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [published, setPublished]   = useState(false);
+  const [publishResult, setPublishResult] = useState<{ inserted: number; updated: number } | null>(null);
 
   const activeRows = rows.filter(r => !r.excluded);
+
+  function selectFile(f: File) {
+    if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+      setFile(f);
+      setParseError(null);
+    } else {
+      setParseError('Only PDF files are accepted.');
+    }
+  }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    if (file?.type === 'application/pdf') setFileName(file.name);
+    const f = e.dataTransfer.files[0];
+    if (f) selectFile(f);
   }
 
   function handleFileInput(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (file) setFileName(file.name);
+    const f = e.target.files?.[0];
+    if (f) selectFile(f);
   }
 
-  function handleParse() {
+  async function handleParse() {
+    if (!file) return;
     setStep(2);
-    setTimeout(() => setStep(3), 2000);
+    setParseError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/parse', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setParseError(data.error || 'Failed to parse PDF.');
+        return;
+      }
+
+      const workorders: WorkOrder[] = data.workorders;
+      const dataMap = new Map<string, WorkOrder>();
+      const displayRows: ReviewRow[] = workorders.map(wo => {
+        dataMap.set(wo.id, wo);
+        return { id: wo.id, customer: wo.customer, mfr: wo.mfr, model: wo.model, inDate: wo.inDate, status: wo.status, excluded: false };
+      });
+
+      setParsedData(dataMap);
+      setRows(displayRows);
+      setStep(3);
+    } catch {
+      setParseError('Could not reach the parser service. Make sure the Python server is running on port 8000.');
+    }
+  }
+
+  async function handlePublish() {
+    setIsPublishing(true);
+    setPublishError(null);
+
+    const workordersToPublish = activeRows.map(row => ({
+      ...parsedData.get(row.id)!,
+      status: row.status,
+    }));
+
+    try {
+      const res = await fetch('/api/workorders/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workorders: workordersToPublish, filename: file?.name }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setPublishError(data.error || 'Failed to publish work orders.');
+        setIsPublishing(false);
+        return;
+      }
+
+      setPublishResult({ inserted: data.inserted, updated: data.updated });
+      setPublished(true);
+    } catch {
+      setPublishError('Network error. Please try again.');
+      setIsPublishing(false);
+    }
   }
 
   function handleStatusChange(id: string, status: WorkOrderStatus) {
@@ -124,24 +186,28 @@ export default function UploadPage() {
             Export a Work Order History report from Ideal DMS and drop it here.
           </p>
 
+          {parseError && (
+            <div className={styles.errorBanner}>{parseError}</div>
+          )}
+
           <div
             className={[
               styles.dropZone,
-              dragOver  ? styles.dropZoneOver   : '',
-              fileName  ? styles.dropZoneReady  : '',
+              dragOver ? styles.dropZoneOver  : '',
+              file     ? styles.dropZoneReady : '',
             ].join(' ')}
             onDragOver={e => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
           >
-            {fileName ? (
+            {file ? (
               <div className={styles.dropFileState}>
                 <svg className={styles.dropFileIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>
                 </svg>
-                <span className={styles.dropFileName}>{fileName}</span>
-                <button className={styles.dropRemove} onClick={() => setFileName(null)}>Remove</button>
+                <span className={styles.dropFileName}>{file.name}</span>
+                <button className={styles.dropRemove} onClick={() => setFile(null)}>Remove</button>
               </div>
             ) : (
               <div className={styles.dropEmptyState}>
@@ -163,11 +229,7 @@ export default function UploadPage() {
 
           <div className={styles.stepActions}>
             <Link href="/admin" className={styles.ghostBtn}>Cancel</Link>
-            <button
-              className={styles.primaryBtn}
-              disabled={!fileName}
-              onClick={handleParse}
-            >
+            <button className={styles.primaryBtn} disabled={!file} onClick={handleParse}>
               Parse Report →
             </button>
           </div>
@@ -177,11 +239,26 @@ export default function UploadPage() {
       {/* Step 2 — Parsing */}
       {step === 2 && (
         <div className={styles.stepContent}>
-          <div className={styles.parsingCenter}>
-            <div className={styles.spinner} />
-            <h2 className={styles.parsingTitle}>Parsing PDF...</h2>
-            <p className={styles.parsingDesc}>Extracting work orders from your report</p>
-          </div>
+          {parseError ? (
+            <div className={styles.parsingCenter}>
+              <div className={styles.errorCircle}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </div>
+              <h2 className={styles.parsingTitle}>Parse Failed</h2>
+              <p className={styles.parsingDesc}>{parseError}</p>
+              <button className={styles.ghostBtn} onClick={() => { setStep(1); setParseError(null); }}>
+                ← Try Again
+              </button>
+            </div>
+          ) : (
+            <div className={styles.parsingCenter}>
+              <div className={styles.spinner} />
+              <h2 className={styles.parsingTitle}>Parsing PDF...</h2>
+              <p className={styles.parsingDesc}>Extracting work orders from your report</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -274,12 +351,15 @@ export default function UploadPage() {
               <span className={styles.publishCount}>{activeRows.length}</span>
               <span className={styles.publishCountLabel}>work orders to publish</span>
             </div>
+            {publishError && (
+              <div className={styles.errorBanner}>{publishError}</div>
+            )}
             <div className={styles.publishActions}>
-              <button className={styles.ghostBtn} onClick={() => setStep(3)}>
+              <button className={styles.ghostBtn} onClick={() => setStep(3)} disabled={isPublishing}>
                 ← Back to Review
               </button>
-              <button className={styles.publishBtn} onClick={() => setPublished(true)}>
-                Publish {activeRows.length} Work Orders
+              <button className={styles.publishBtn} onClick={handlePublish} disabled={isPublishing}>
+                {isPublishing ? 'Publishing...' : `Publish ${activeRows.length} Work Orders`}
               </button>
             </div>
           </div>
@@ -297,7 +377,10 @@ export default function UploadPage() {
             </div>
             <h2 className={styles.successTitle}>Published</h2>
             <p className={styles.successDesc}>
-              {activeRows.length} work orders are now live on the customer portal.
+              {publishResult
+                ? `${publishResult.inserted} new, ${publishResult.updated} updated — all live on the customer portal.`
+                : `${activeRows.length} work orders are now live on the customer portal.`
+              }
             </p>
             <Link href="/admin" className={styles.primaryBtn}>
               Back to Dashboard
