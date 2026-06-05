@@ -47,7 +47,7 @@ This confirms the same status code is used for **two very different outcomes**.
 **Status:** In Progress
 **Priority:** High
 **Created:** 2026-05-31
-**Updated:** 2026-06-05
+**Updated:** 2026-06-05 (API wiring complete; minor polish items remain)
 
 **Description:**
 Build the dealer-facing admin section: a dashboard with upload history and a multi-step PDF upload flow that parses, lets admins review/edit, and publishes work orders to the database.
@@ -70,19 +70,19 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 
 ---
 
-#### Admin dashboard (`/admin`) — UI complete (6/5/2026)
+#### Admin dashboard (`/admin`) — wired (6/5/2026)
 
 **Tasks:**
 - [x] Stats strip: total WO count + breakdown by status (completed / warranty / nwf / review / inprogress)
-- [x] "Last updated" timestamp — placeholder, wired to DB next
+- [x] "Last updated" timestamp
 - [x] "Upload New Report" button → `/admin/upload`
-- [ ] Stats strip wired to `/api/workorders?stats=true`
-- [ ] "Last updated" wired to `/api/meta`
+- [x] Stats strip wired to `/api/workorders?stats=true`
+- [x] "Last updated" wired to `/api/meta`
 - [ ] Recent uploads log — wired to `/api/uploads`
 
 ---
 
-#### Upload flow (`/admin/upload`) — UI complete (6/5/2026)
+#### Upload flow (`/admin/upload`) — wired (6/5/2026)
 
 **Step 1 — Drop zone**
 - [x] Drag & drop target for PDF files
@@ -91,21 +91,21 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 
 **Step 2 — Parsing**
 - [x] Loading state (spinner)
-- [ ] Wire to `POST /api/parse` with PDF file
-- [ ] Error state if parser returns a failure
+- [x] Wire to `POST /api/parse` with PDF file
+- [x] Error state if parser returns a failure
 
 **Step 3 — Review**
 - [x] Table of all parsed work orders (WO #, customer, equipment, status, date in)
 - [x] Per-row status override (dropdown)
 - [x] Per-row exclude toggle (checkbox)
 - [x] Summary bar with active count and excluded count
-- [ ] "Y new, Z updates" breakdown (requires DB lookup — deferred to API wiring)
+- [ ] "Y new, Z updates" breakdown (requires DB lookup — deferred)
 
 **Step 4 — Publish / Done**
 - [x] Publish confirmation screen with WO count
 - [x] Success state
-- [ ] Wire publish button to `POST /api/workorders/publish`
-- [ ] Write `last_updated` on success → redirect to `/admin`
+- [x] Wire publish button to `POST /api/workorders/publish`
+- [x] Write `last_updated` on success → redirect to `/admin`
 
 ---
 
@@ -272,6 +272,65 @@ HUS  → Husqvarna  HON  → Honda      GEN  → Generac
 SHI  → Shindaiwa  MUR  → Murray     SIMP → Simpson
 MISC → Misc       EXC  → Excalibur
 ```
+
+---
+
+---
+
+### ISSUE-005: End-to-End Testing
+**Status:** Open
+**Priority:** High
+**Created:** 2026-06-05
+**Updated:** 2026-06-05
+
+**Description:**
+Validate the full admin upload flow end-to-end against a real PDF before building the customer portal. Catches field mapping bugs, edge cases in the parser, and API contract issues before they compound.
+
+**Scope:**
+- Upload a real Ideal DMS PDF through the browser UI
+- Confirm all 72 (or expected count) work orders parse and display correctly in the review step
+- Verify status overrides and excludes carry through to publish
+- Confirm DB is populated correctly after publish (query SQLite directly)
+- Confirm stats strip and "last updated" reflect the new data on `/admin`
+- Test error paths: wrong file type, parser down, empty PDF
+
+**Tasks:**
+- [ ] Upload sample PDF end-to-end through `/admin/upload`
+- [ ] Spot-check parsed WOs against source PDF (spot-check 5–10 records)
+- [ ] Verify camelCase field mapping is correct across parser → API → UI
+- [ ] Test status override persists to DB
+- [ ] Test exclude toggle: excluded WOs not written to DB
+- [ ] Test publish → redirect → dashboard stats update
+- [ ] Test error: drop a non-PDF file
+- [ ] Test error: upload while parser is not running
+- [ ] Fix any bugs found
+
+---
+
+### ISSUE-006: Customer-Facing Portal
+**Status:** Planned
+**Priority:** High
+**Created:** 2026-06-05
+**Updated:** 2026-06-05
+
+**Description:**
+Build the public-facing portal where customers can look up their work order status by WO number, customer ID, or serial number. Wired directly to the live SQLite (dev) / PostgreSQL (prod) database via the existing `/api/workorders/search` route.
+
+**Design decisions (to confirm):**
+- Single search input or separate fields per lookup type?
+- What fields are shown on the result card (per ISSUE-001 spec: id, customer, inDate, complDate, mfr, model, desc, serial, type, status, comments)?
+- Status labels and colors — align with admin dashboard display
+- Mobile-first layout (customers will likely check on phone)
+
+**Tasks:**
+- [ ] Finalize search UX — single input vs. tabbed lookup
+- [ ] Build search page (`/`) with input and submit
+- [ ] Wire to `GET /api/workorders/search`
+- [ ] Build result card component (fields per ISSUE-001 spec)
+- [ ] Build "not found" empty state
+- [ ] Build loading and error states
+- [ ] Resolve ISSUE-002 (NWF copy) before writing customer-facing status labels
+- [ ] Test against live DB populated by ISSUE-005
 
 ---
 
