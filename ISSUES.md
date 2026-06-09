@@ -278,10 +278,10 @@ MISC → Misc       EXC  → Excalibur
 ---
 
 ### ISSUE-005: End-to-End Testing
-**Status:** Open
+**Status:** In Progress
 **Priority:** High
 **Created:** 2026-06-05
-**Updated:** 2026-06-05
+**Updated:** 2026-06-08
 
 **Description:**
 Validate the full admin upload flow end-to-end against a real PDF before building the customer portal. Catches field mapping bugs, edge cases in the parser, and API contract issues before they compound.
@@ -295,42 +295,97 @@ Validate the full admin upload flow end-to-end against a real PDF before buildin
 - Test error paths: wrong file type, parser down, empty PDF
 
 **Tasks:**
-- [ ] Upload sample PDF end-to-end through `/admin/upload`
+- [x] Upload sample PDF end-to-end through `/admin/upload`
+- [x] Verify upsert logic — re-upload confirmed 17 WOs updated correctly
+- [x] Verify camelCase field mapping is correct across parser → API → UI
+- [x] Fix date rendering bug — search route was returning snake_case DB rows; added `toCamelFormat` mapping (2026-06-08)
 - [ ] Spot-check parsed WOs against source PDF (spot-check 5–10 records)
-- [ ] Verify camelCase field mapping is correct across parser → API → UI
 - [ ] Test status override persists to DB
 - [ ] Test exclude toggle: excluded WOs not written to DB
 - [ ] Test publish → redirect → dashboard stats update
 - [ ] Test error: drop a non-PDF file
 - [ ] Test error: upload while parser is not running
-- [ ] Fix any bugs found
 
 ---
 
 ### ISSUE-006: Customer-Facing Portal
-**Status:** Planned
+**Status:** In Progress
 **Priority:** High
 **Created:** 2026-06-05
-**Updated:** 2026-06-05
+**Updated:** 2026-06-08
 
 **Description:**
 Build the public-facing portal where customers can look up their work order status by WO number, customer ID, or serial number. Wired directly to the live SQLite (dev) / PostgreSQL (prod) database via the existing `/api/workorders/search` route.
 
-**Design decisions (to confirm):**
-- Single search input or separate fields per lookup type?
-- What fields are shown on the result card (per ISSUE-001 spec: id, customer, inDate, complDate, mfr, model, desc, serial, type, status, comments)?
-- Status labels and colors — align with admin dashboard display
-- Mobile-first layout (customers will likely check on phone)
+**Tasks:**
+- [x] Build search page (`/status`) with single input and submit
+- [x] Wire to `GET /api/workorders/search`
+- [x] Build result card component (fields per ISSUE-001 spec)
+- [x] Build "not found" empty state
+- [x] Build loading and error states
+- [x] Tested against live DB — search by WO#, serial, customer ID all working (2026-06-08)
+- [ ] Resolve ISSUE-002 (NWF copy) — update customer-facing status label once confirmed
+- [ ] Mobile layout QA
+
+---
+
+---
+
+### ISSUE-007: Admin Work Order Browser + In-Place Editor
+**Status:** Planned
+**Priority:** High
+**Created:** 2026-06-08
+**Updated:** 2026-06-08
+
+**Description:**
+Admins need a way to browse and manually edit work orders already in the database — outside of the upload flow. This covers corrections after the fact (wrong status, bad comments, etc.) without requiring a re-upload.
+
+**UX flow:**
+1. `/admin/workorders` — paginated table of all WOs in the DB, sorted by `inDate` descending
+2. Clicking a row navigates to `/admin/workorders/[id]`
+3. Edit page shows all fields (including admin-only: tech, tag, startDate, outDate) as editable inputs
+4. Save button writes changes back to the DB
+
+---
+
+#### Table page (`/admin/workorders`)
+
+**Columns:** WO#, Customer, Manufacturer, Model, Status, Date In, Date Completed
+**Behaviour:**
+- Paginated — 25 rows per page, prev/next controls
+- Status shown as colored badge (reuse admin dashboard style)
+- Each row is clickable → `/admin/workorders/[id]`
+- Filter bar (optional, deferred): filter by status or date range
 
 **Tasks:**
-- [ ] Finalize search UX — single input vs. tabbed lookup
-- [ ] Build search page (`/`) with input and submit
-- [ ] Wire to `GET /api/workorders/search`
-- [ ] Build result card component (fields per ISSUE-001 spec)
-- [ ] Build "not found" empty state
-- [ ] Build loading and error states
-- [ ] Resolve ISSUE-002 (NWF copy) before writing customer-facing status labels
-- [ ] Test against live DB populated by ISSUE-005
+- [ ] Add `GET /api/workorders` route support for pagination (`?page=&limit=`)
+- [ ] Build `/admin/workorders` page — table + pagination controls
+- [ ] Wire to `GET /api/workorders?page=&limit=25`
+- [ ] Clickable rows → navigate to edit page
+
+---
+
+#### Edit page (`/admin/workorders/[id]`)
+
+**Fields editable by admin:**
+| Field | Input type |
+|---|---|
+| `status` | Dropdown (completed / warranty / nwf / review / inprogress) |
+| `comments` | Textarea |
+| `tech` | Text input |
+| `tag` | Text input |
+| `complDate` | Date input |
+| `outDate` | Date input |
+
+**Read-only on this page:** WO#, customer, customerId, mfr, model, serial, inDate, type
+
+**Tasks:**
+- [ ] Add `GET /api/workorders/[id]` route — returns single WO (all fields including admin-only)
+- [ ] Add `PATCH /api/workorders/[id]` route — accepts partial update, writes to DB
+- [ ] Add `updateWorkOrder` helper to `lib/db/index.ts`
+- [ ] Build `/admin/workorders/[id]` edit page
+- [ ] Save button calls `PATCH`, shows success/error feedback
+- [ ] Back link → `/admin/workorders` (preserve page position if possible)
 
 ---
 
