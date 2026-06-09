@@ -1,5 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchWorkOrders } from '@/lib/db';
+import { searchWorkOrders, WorkOrder as DbWorkOrder } from '@/lib/db';
+
+function toCamelFormat(wo: Omit<DbWorkOrder, 'tech'>) {
+  return {
+    id: String(wo.id),
+    customerId: String(wo.customer_id),
+    customer: wo.customer,
+    tag: wo.tag ?? '',
+    inDate: wo.in_date,
+    startDate: wo.start_date ?? null,
+    complDate: wo.compl_date ?? null,
+    outDate: wo.out_date ?? null,
+    mfr: wo.mfr,
+    model: wo.model,
+    desc: wo.description,
+    serial: wo.serial ?? '',
+    type: wo.type,
+    status: wo.status,
+    comments: wo.comments ?? '',
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,9 +33,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Search by WO ID, customer ID, or serial number
-    // Note: tech field is excluded from results (customer-facing endpoint)
-    const workorders = searchWorkOrders(query.trim());
+    const rows = searchWorkOrders(query.trim());
+    const workorders = rows.map(toCamelFormat);
 
     return NextResponse.json({ workorders });
   } catch (error) {

@@ -1,36 +1,42 @@
 'use client';
 
 import { useState } from 'react';
-import { mockWorkOrders } from '@/lib/mockData';
 import { WorkOrder } from '@/lib/types';
 import SearchBar from '@/components/SearchBar';
 import WorkOrderCard from '@/components/WorkOrderCard';
 import styles from './page.module.css';
 
-function search(workorders: WorkOrder[], query: string): WorkOrder[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
-  return workorders.filter(wo =>
-    wo.id.toLowerCase().includes(q) ||
-    wo.serial.toLowerCase().includes(q) ||
-    wo.customerId.toLowerCase().includes(q)
-  );
-}
-
 export default function StatusPage() {
   const [query, setQuery] = useState('');
-  const [submittedQuery, setSubmittedQuery] = useState('');
+  const [results, setResults] = useState<WorkOrder[]>([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const results = search(mockWorkOrders, submittedQuery);
-  const hasSubmitted = submittedQuery.trim().length > 0;
-
-  function handleSubmit() {
-    setSubmittedQuery(query);
+  async function handleSubmit() {
+    const q = query.trim();
+    if (!q) return;
+    setLoading(true);
+    setError(null);
+    setHasSubmitted(true);
+    try {
+      const res = await fetch(`/api/workorders/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Search failed');
+      setResults(data.workorders);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleClear() {
     setQuery('');
-    setSubmittedQuery('');
+    setResults([]);
+    setHasSubmitted(false);
+    setError(null);
   }
 
   return (
@@ -69,14 +75,26 @@ export default function StatusPage() {
           </div>
         )}
 
-        {hasSubmitted && results.length === 0 && (
+        {loading && (
           <div className={styles.emptyState}>
-            <p>No work orders found for <strong>&ldquo;{submittedQuery}&rdquo;</strong>.</p>
+            <p>Searching...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className={styles.emptyState}>
+            <p>Something went wrong. Please try again.</p>
+          </div>
+        )}
+
+        {hasSubmitted && !loading && !error && results.length === 0 && (
+          <div className={styles.emptyState}>
+            <p>No work orders found for <strong>&ldquo;{query}&rdquo;</strong>.</p>
             <p className={styles.emptyHint}>Try your work order number, your unit&apos;s serial number, or your customer ID from a previous invoice.</p>
           </div>
         )}
 
-        {results.length > 0 && (
+        {!loading && results.length > 0 && (
           <div className={styles.results}>
             <div className={styles.resultsCount}>
               {results.length} work order{results.length !== 1 ? 's' : ''} found
