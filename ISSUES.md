@@ -4,45 +4,6 @@
 
 ---
 
-### ISSUE-002: Clarify "NWF" Status Meaning
-**Status:** Blocked (waiting on service department)
-**Priority:** High (upgraded — confirmed ambiguity in real data)
-**Created:** 2026-05-29
-**Updated:** 2026-05-29
-
-**Description:**
-"NWF" in technician comments is ambiguous:
-- **Nothing Wrong Found** — equipment tested, issue not reproduced
-- **Not Worth Fixing** — repair cost exceeds equipment value
-
-These have different customer-facing implications and may need different UI treatment.
-
-**Evidence from HTML Demo Data:**
-
-Both meanings appear in actual work order comments:
-
-**"Nothing Wrong Found" usage (WO #1398925):**
-> `"Nothing wrong found. Unit inspected and returned to customer."`
-
-**"Not Worth Fixing" usage (WO #1399688):**
-> `"Piston/cylinder scored and needs muffler. Unit deemed not worth fixing (NWF)."`
-
-This confirms the same status code is used for **two very different outcomes**.
-
-**Tasks:**
-- [ ] Confirm with Nick (service manager) what NWF means at All Dade
-- [ ] Determine if both meanings are used (different abbreviations?)
-- [ ] Update status derivation logic accordingly
-- [ ] Define customer-facing copy for each status
-
-**Possible Solutions:**
-1. **Split into two statuses:** `nwf-nothing-wrong` and `nwf-not-worth` with different UI colors/copy
-2. **Use comment text analysis:** Look for keywords like "not worth" vs "nothing wrong"
-3. **Single status with neutral copy:** "No repair performed" — avoids implying either meaning
-4. **Ask service dept to use different codes:** e.g., "NWF" vs "NWR" (Not Worth Repair)
-
----
-
 ### ISSUE-003: Build Admin Dashboard + Upload Flow
 **Status:** In Progress
 **Priority:** High
@@ -87,7 +48,7 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 **Step 1 — Drop zone**
 - [x] Drag & drop target for PDF files
 - [x] "Browse files" fallback button
-- [ ] PDF-only validation — inline error on wrong file type (currently silently ignores)
+- [x] PDF-only validation — inline error on wrong file type (client-side MIME check done; parser rejects non-Ideal PDFs via title check)
 
 **Step 2 — Parsing**
 - [x] Loading state (spinner)
@@ -195,6 +156,7 @@ The parser runs as a standalone process on port 8000 (configurable via `PARSER_U
 ```bash
 cd parser
 pip install -r requirements.txt
+source ".venv/bin/activate"
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
@@ -390,6 +352,23 @@ Admins need a way to browse and manually edit work orders already in the databas
 ---
 
 ## Closed Issues
+
+### ISSUE-002: Clarify "NWF" Status Meaning
+**Status:** Closed
+**Priority:** High
+**Created:** 2026-05-29
+**Closed:** 2026-06-10
+
+**Resolution:**
+No official work order code or labor item exists for either NWF meaning ("Nothing Wrong Found" or "Not Worth Fixing"), and no standard can be enforced in the service department. Splitting statuses or keyword detection would be false precision.
+
+**Decision:** Treat `nwf` as a single opaque status. The customer portal shows the technician notes (which often contain enough context) alongside a neutral prompt to contact the shop. The service advisor fields the call and explains the outcome directly.
+
+**Customer-facing copy:**
+- Badge label: `Contact Shop`
+- Callout: *"Please contact the shop directly — a service advisor can explain the outcome of this work order."*
+
+---
 
 ### ISSUE-001: Verify Work Order Structure Against Source Files
 **Status:** Closed

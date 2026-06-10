@@ -7,7 +7,7 @@ import styles from './WorkOrderCard.module.css';
 const STATUS_CONFIG: Record<WorkOrderStatus, { color: string; label: string }> = {
   completed:  { color: 'var(--green)',  label: 'Completed' },
   warranty:   { color: 'var(--purple)', label: 'Under Warranty' },
-  nwf:        { color: 'var(--amber)',  label: 'NWF' },
+  nwf:        { color: 'var(--amber)',  label: 'Contact Shop' },
   review:     { color: 'var(--red)',    label: 'Needs Review' },
   inprogress: { color: 'var(--blue)',   label: 'In Progress' },
 };
@@ -124,15 +124,14 @@ export default function WorkOrderCard({ workOrder: wo }: Props) {
 
           {wo.status === 'warranty' && (
             <div className={`${styles.callout} ${styles.calloutWarranty}`}>
-              <strong>Under Manufacturer Warranty</strong>
-              <p>This repair is covered under warranty at no charge to you.</p>
+              <strong>Warranty Approved</strong>
+              <p>Warranty coverage has been approved for this order. Please contact the shop for details — coverage may not include all labor or parts.</p>
             </div>
           )}
 
           {wo.status === 'nwf' && (
             <div className={`${styles.callout} ${styles.calloutNwf}`}>
-              <strong>No Repair Performed (NWF)</strong>
-              <p>See technician notes below for details.</p>
+              <p>Please contact the shop directly — a service advisor can explain the outcome of this work order.</p>
             </div>
           )}
 

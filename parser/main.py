@@ -13,7 +13,7 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from pdf_parser import parse_ideal_pdf
+from pdf_parser import parse_ideal_pdf, is_ideal_work_order_report
 
 app = FastAPI(
     title="Ideal DMS PDF Parser",
@@ -64,6 +64,12 @@ async def parse_pdf(file: UploadFile = File(...)):
 
         if len(pdf_bytes) == 0:
             raise HTTPException(status_code=400, detail="Empty file uploaded")
+
+        if not is_ideal_work_order_report(pdf_bytes):
+            raise HTTPException(
+                status_code=422,
+                detail="This file does not appear to be a Work Order History Report from Ideal DMS. Please export the correct report and try again."
+            )
 
         # Parse the PDF
         work_orders = parse_ideal_pdf(pdf_bytes)

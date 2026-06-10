@@ -11,6 +11,15 @@ import pdfplumber
 from normalizer import normalize_work_order
 
 
+def is_ideal_work_order_report(pdf_bytes: bytes) -> bool:
+    """Return True if the first page contains the Ideal DMS report title."""
+    with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+        if not pdf.pages:
+            return False
+        first_page = pdf.pages[0].extract_text() or ""
+        return "Work Order History Report" in first_page
+
+
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     """Extract all text from PDF, joining pages with newlines."""
     full_text = []
