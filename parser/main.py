@@ -68,7 +68,7 @@ async def parse_pdf(file: UploadFile = File(...)):
         if not is_ideal_work_order_report(pdf_bytes):
             raise HTTPException(
                 status_code=422,
-                detail="This file does not appear to be a Work Order History Report from Ideal DMS. Please export the correct report and try again."
+                detail="This file does not appear to be a Work Order History List from Ideal DMS. Please export the correct report and try again."
             )
 
         # Parse the PDF

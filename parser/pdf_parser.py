@@ -17,7 +17,7 @@ def is_ideal_work_order_report(pdf_bytes: bytes) -> bool:
         if not pdf.pages:
             return False
         first_page = pdf.pages[0].extract_text() or ""
-        return "Work Order History Report" in first_page
+        return "Work Order History List" in first_page
 
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
