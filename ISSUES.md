@@ -155,8 +155,8 @@ The parser runs as a standalone process on port 8000 (configurable via `PARSER_U
 
 ```bash
 cd parser
-pip install -r requirements.txt
-source ".venv/bin/activate"
+source .venv/bin/activate   # activate
+pip install -r requirements.txt  # only needed if packages changed
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
