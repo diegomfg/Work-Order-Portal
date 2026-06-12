@@ -214,6 +214,13 @@ export function searchWorkOrders(query: string): Omit<WorkOrder, 'tech'>[] {
   `).all(numericQuery || 0, pattern) as Omit<WorkOrder, 'tech'>[];
 }
 
+// Get a single work order by ID (all fields, for admin detail view)
+export function getWorkOrderById(id: number): WorkOrder | null {
+  const db = getDb();
+  const row = db.prepare('SELECT * FROM workorders WHERE id = ?').get(id) as WorkOrder | undefined;
+  return row ?? null;
+}
+
 // Get work orders with pagination (for admin table)
 export function getWorkOrdersPaginated(
   page: number,
