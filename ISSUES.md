@@ -294,10 +294,10 @@ Build the public-facing portal where customers can look up their work order stat
 ---
 
 ### ISSUE-007: Admin Work Order Browser + In-Place Editor
-**Status:** Planned
+**Status:** Pending Testing
 **Priority:** High
 **Created:** 2026-06-08
-**Updated:** 2026-06-08
+**Updated:** 2026-06-11
 
 **Description:**
 Admins need a way to browse and manually edit work orders already in the database — outside of the upload flow. This covers corrections after the fact (wrong status, bad comments, etc.) without requiring a re-upload.
@@ -319,35 +319,29 @@ Admins need a way to browse and manually edit work orders already in the databas
 - Each row is clickable → `/admin/workorders/[id]`
 - Filter bar (optional, deferred): filter by status or date range
 
-**Tasks:**
-- [ ] Add `GET /api/workorders` route support for pagination (`?page=&limit=`)
-- [ ] Build `/admin/workorders` page — table + pagination controls
-- [ ] Wire to `GET /api/workorders?page=&limit=25`
-- [ ] Clickable rows → navigate to edit page
-
----
-
-#### Edit page (`/admin/workorders/[id]`)
-
-**Fields editable by admin:**
-| Field | Input type |
-|---|---|
-| `status` | Dropdown (completed / warranty / nwf / review / inprogress) |
-| `comments` | Textarea |
-| `tech` | Text input |
-| `tag` | Text input |
-| `complDate` | Date input |
-| `outDate` | Date input |
-
-**Read-only on this page:** WO#, customer, customerId, mfr, model, serial, inDate, type
+#### Table page (`/admin/workorders`) — complete
 
 **Tasks:**
-- [ ] Add `GET /api/workorders/[id]` route — returns single WO (all fields including admin-only)
-- [ ] Add `PATCH /api/workorders/[id]` route — accepts partial update, writes to DB
-- [ ] Add `updateWorkOrder` helper to `lib/db/index.ts`
-- [ ] Build `/admin/workorders/[id]` edit page
-- [ ] Save button calls `PATCH`, shows success/error feedback
-- [ ] Back link → `/admin/workorders` (preserve page position if possible)
+- [x] Add `GET /api/workorders` route support for pagination (`?page=&limit=`)
+- [x] Build `/admin/workorders` page — table + pagination controls (10/20/50 per page)
+- [x] Clickable rows with orange outline hover → navigate to edit page
+
+#### Edit page (`/admin/workorders/[id]`) — complete
+
+**Editable fields:** status (dropdown), customer name, customer ID, manufacturer, description, tag, technician, comments
+
+**Read-only fields:** model, serial, all dates — intentionally locked (serial/model don't change mid-job; dates are interdependent and fragile to partial edits)
+
+**Customer ID change flow:** 2-step confirmation modal — step 1 shows old→new ID with a warning; step 2 requires typing the new ID exactly before confirming.
+
+**Tasks:**
+- [x] Add `GET /api/workorders/[id]` route — returns single WO (all fields including admin-only)
+- [x] Add `PATCH /api/workorders/[id]` route — accepts partial update, writes to DB
+- [x] Add `updateWorkOrder` helper to `lib/db/index.ts`
+- [x] Build `/admin/workorders/[id]` edit page
+- [x] Save button calls `PATCH`, shows inline success/error feedback, resets dirty state
+- [x] Back link → `/admin/workorders`
+- [x] 2-step confirmation modal for customer ID changes
 
 ---
 

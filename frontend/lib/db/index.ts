@@ -214,6 +214,30 @@ export function searchWorkOrders(query: string): Omit<WorkOrder, 'tech'>[] {
   `).all(numericQuery || 0, pattern) as Omit<WorkOrder, 'tech'>[];
 }
 
+// Update editable fields on a work order
+export function updateWorkOrder(id: number, fields: Record<string, unknown>): void {
+  const db = getDb();
+
+  const ALLOWED = ['status', 'customer', 'customer_id', 'mfr', 'description', 'tag', 'tech', 'comments'] as const;
+
+  const sets: string[] = [];
+  const values: unknown[] = [];
+
+  for (const col of ALLOWED) {
+    if (col in fields) {
+      sets.push(`${col} = ?`);
+      values.push(fields[col]);
+    }
+  }
+
+  if (sets.length === 0) return;
+
+  sets.push("updated_at = datetime('now')");
+  values.push(id);
+
+  db.prepare(`UPDATE workorders SET ${sets.join(', ')} WHERE id = ?`).run(...values);
+}
+
 // Get a single work order by ID (all fields, for admin detail view)
 export function getWorkOrderById(id: number): WorkOrder | null {
   const db = getDb();
