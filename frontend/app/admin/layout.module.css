@@ -41,9 +41,17 @@
   border-radius: 4px;
 }
 
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .navLink {
   font-size: 0.85rem;
   color: var(--muted);
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
   transition: color 0.15s;
 }
 

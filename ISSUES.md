@@ -351,6 +351,21 @@ Admins need a way to browse and manually edit work orders already in the databas
 
 ---
 
+### ISSUE-008: Mobile Visual Artifacts — Brand & Equipment Type Overlay
+**Status:** Open
+**Priority:** Low
+**Created:** 2026-06-11
+
+**Description:**
+On mobile, the brand (manufacturer) and equipment type elements on the customer portal result card visually overlap each other. Needs layout/spacing fix.
+
+**Tasks:**
+- [ ] Identify conflicting styles on the brand + equipment type elements
+- [ ] Fix overflow/overlap on small viewports
+- [ ] QA on common mobile breakpoints (375px, 390px, 414px)
+
+---
+
 ## Closed Issues
 
 ### ISSUE-002: Clarify "NWF" Status Meaning

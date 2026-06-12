@@ -14,6 +14,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <span className={styles.navLogo}>WO Portal</span>
           <span className={styles.navBadge}>Admin</span>
         </div>
+        <nav className={styles.navLinks}>
+          <Link href="/admin" className={styles.navLink}>Dashboard</Link>
+          <Link href="/admin/workorders" className={styles.navLink}>Work Orders</Link>
+        </nav>
         <Link href="/status" className={styles.navLink}>
           ← View Portal
         </Link>

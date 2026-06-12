@@ -214,6 +214,35 @@ export function searchWorkOrders(query: string): Omit<WorkOrder, 'tech'>[] {
   `).all(numericQuery || 0, pattern) as Omit<WorkOrder, 'tech'>[];
 }
 
+// Get work orders with pagination (for admin table)
+export function getWorkOrdersPaginated(
+  page: number,
+  limit: number,
+  filters?: { status?: string; type?: string }
+): { workorders: WorkOrder[]; total: number } {
+  const db = getDb();
+  const offset = (page - 1) * limit;
+
+  const conditions: string[] = [];
+  const filterParams: (string | number)[] = [];
+
+  if (filters?.status) {
+    conditions.push('status = ?');
+    filterParams.push(filters.status);
+  }
+  if (filters?.type) {
+    conditions.push('type = ?');
+    filterParams.push(filters.type);
+  }
+
+  const where = conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '';
+
+  const row = db.prepare(`SELECT COUNT(*) as count FROM workorders${where}`).get(...filterParams) as { count: number };
+  const workorders = db.prepare(`SELECT * FROM workorders${where} ORDER BY in_date DESC LIMIT ? OFFSET ?`).all(...filterParams, limit, offset) as WorkOrder[];
+
+  return { workorders, total: row.count };
+}
+
 // Get all work orders (for admin, includes tech field)
 export function getAllWorkOrders(filters?: { status?: string; type?: string }): WorkOrder[] {
   const db = getDb();
