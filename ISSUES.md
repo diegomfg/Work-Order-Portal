@@ -5,10 +5,10 @@
 ---
 
 ### ISSUE-003: Build Admin Dashboard + Upload Flow
-**Status:** In Progress
+**Status:** Complete
 **Priority:** High
 **Created:** 2026-05-31
-**Updated:** 2026-06-05 (API wiring complete; minor polish items remain)
+**Updated:** 2026-06-16
 
 **Description:**
 Build the dealer-facing admin section: a dashboard with upload history and a multi-step PDF upload flow that parses, lets admins review/edit, and publishes work orders to the database.
@@ -39,7 +39,7 @@ Written to the database (or a simple meta table) when a publish completes. Dashb
 - [x] "Upload New Report" button → `/admin/upload`
 - [x] Stats strip wired to `/api/workorders?stats=true`
 - [x] "Last updated" wired to `/api/meta`
-- [ ] Recent uploads log — wired to `/api/uploads`
+- [x] Recent uploads log — wired to `/api/uploads`
 
 ---
 
@@ -271,10 +271,10 @@ Validate the full admin upload flow end-to-end against a real PDF before buildin
 ---
 
 ### ISSUE-006: Customer-Facing Portal
-**Status:** In Progress
+**Status:** Complete
 **Priority:** High
 **Created:** 2026-06-05
-**Updated:** 2026-06-08
+**Updated:** 2026-06-16
 
 **Description:**
 Build the public-facing portal where customers can look up their work order status by WO number, customer ID, or serial number. Wired directly to the live SQLite (dev) / PostgreSQL (prod) database via the existing `/api/workorders/search` route.
@@ -286,8 +286,8 @@ Build the public-facing portal where customers can look up their work order stat
 - [x] Build "not found" empty state
 - [x] Build loading and error states
 - [x] Tested against live DB — search by WO#, serial, customer ID all working (2026-06-08)
-- [ ] Resolve ISSUE-002 (NWF copy) — update customer-facing status label once confirmed
-- [ ] Mobile layout QA
+- [x] Resolve ISSUE-002 (NWF copy) — update customer-facing status label once confirmed
+- [x] Mobile layout QA
 
 ---
 
@@ -346,17 +346,46 @@ Admins need a way to browse and manually edit work orders already in the databas
 ---
 
 ### ISSUE-008: Mobile Visual Artifacts — Brand & Equipment Type Overlay
-**Status:** Open
+**Status:** Complete
 **Priority:** Low
 **Created:** 2026-06-11
+**Updated:** 2026-06-16
 
 **Description:**
 On mobile, the brand (manufacturer) and equipment type elements on the customer portal result card visually overlap each other. Needs layout/spacing fix.
 
 **Tasks:**
-- [ ] Identify conflicting styles on the brand + equipment type elements
-- [ ] Fix overflow/overlap on small viewports
-- [ ] QA on common mobile breakpoints (375px, 390px, 414px)
+- [x] Identify conflicting styles on the brand + equipment type elements
+- [x] Fix overflow/overlap on small viewports — switched to 2-row CSS grid layout; status badge moved to expanded body on mobile
+- [x] QA on common mobile breakpoints (375px, 390px, 414px)
+
+---
+
+### ISSUE-009: Upload History — Drill-Down & Record Versioning
+**Status:** Planned
+**Priority:** Low
+**Created:** 2026-06-16
+
+**Description:**
+Make each entry in the recent uploads log clickable so admins can drill into a specific upload and see exactly which work orders were created or updated as a result. Provides a lightweight audit trail without a full versioning system.
+
+**UX flow:**
+1. `/admin` uploads log — each row is clickable → `/admin/uploads/[id]`
+2. Upload detail page lists every WO affected by that upload: WO#, customer, status, and whether it was a **new** record or an **update**
+3. For updates, ideally show what changed (old vs new status at minimum)
+
+**Requires:**
+- `uploads` table extended (or a new `upload_records` join table) to store which WO IDs were touched per upload, and new/updated flag
+- `PATCH /api/workorders/publish` to record affected WO IDs at publish time
+- New route `GET /api/uploads/[id]` returning the affected WO list
+- New page `/admin/uploads/[id]`
+
+**Tasks:**
+- [ ] Design DB schema for per-upload WO tracking (`upload_records` table: `upload_id`, `wo_id`, `action: new|updated`)
+- [ ] Update publish route to write `upload_records` rows on each upsert
+- [ ] Add `GET /api/uploads/[id]` route
+- [ ] Make uploads log rows on `/admin` clickable → `/admin/uploads/[id]`
+- [ ] Build upload detail page — table of affected WOs with new/updated badge
 
 ---
 
