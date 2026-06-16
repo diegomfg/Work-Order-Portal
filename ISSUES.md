@@ -361,6 +361,35 @@ On mobile, the brand (manufacturer) and equipment type elements on the customer 
 
 ---
 
+### ISSUE-010: Distribution Planning
+**Status:** Planned
+**Priority:** Medium
+**Created:** 2026-06-16
+
+**Description:**
+Prepare the application for distribution and handoff. Three areas: architecture documentation, run instructions, and Docker packaging. None of this changes the application itself — it's purely operational/infra work.
+
+---
+
+#### Architecture documentation
+- [ ] Write an official architecture doc covering the full data flow: PDF export from Ideal DMS → Python parser (FastAPI) → Next.js API routes → SQLite/PostgreSQL → customer portal + admin dashboard
+- [ ] Include a diagram of the two-process dev setup (Next.js :3000 + Python parser :8000) and how they communicate
+- [ ] Document the database schema and key tables (`workorders`, `meta`, `uploads`)
+
+#### Run instructions
+- [ ] Write step-by-step instructions to run the app locally (clone → install → start both servers)
+- [ ] Cover environment variables (`PARSER_URL`, DB path, etc.)
+- [ ] Include how to run the Python parser (`venv`, `uvicorn`) and Next.js (`npm run dev`) side by side
+
+#### Docker packaging
+- [ ] Define Docker image strategy — decided at project start: containerize for version/dependency consistency across environments
+- [ ] Write `Dockerfile` for the Python parser (FastAPI + pdfplumber)
+- [ ] Write `Dockerfile` for the Next.js frontend
+- [ ] Write `docker-compose.yml` to wire both services together with correct ports and env vars
+- [ ] Test that the composed stack runs cleanly from a fresh clone
+
+---
+
 ### ISSUE-009: Upload History — Drill-Down & Record Versioning
 **Status:** Planned
 **Priority:** Low
